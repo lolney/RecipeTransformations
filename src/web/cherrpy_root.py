@@ -1,4 +1,5 @@
 import cherrypy
+import urllib, ast
 import src.nlp.parsing as parsing
 import src.tools.templates as templates
 
@@ -13,12 +14,27 @@ class Root(object):
 	def recipes(self, name="Cherry Pie"):
 		mytemplate = templates.lookup('recipe.html')
 		return mytemplate.render(title=name,
-			ingredients=["Coffee","Tea","Milk"],
-			instructions=["Put the egg in the milk"],
+			ingredients=[{"q":"1","n":"Coffee"}],
+			instructions=["Put the egg in the milk", "Put the jam in the marshmellow"],
+			transform_categories=[{"Name" : "Varieties", "Categories" : ["Italian", "French"]}])
+
+	@cherrypy.expose
+	def parsed_recipe(self, **kwargs):
+
+		ingredients = [];
+		for item in kwargs["ingredients"]:
+			ingredients.append(ast.literal_eval(item))
+
+		mytemplate = templates.lookup('recipe.html')
+		return mytemplate.render(title=kwargs["name"],
+			ingredients=ingredients,
+			instructions=kwargs["instructions"],
 			transform_categories=[{"Name" : "Varieties", "Categories" : ["Italian", "French"]}])
 
 	@cherrypy.expose
 	def search(self, q=""):
-		qstring = parsing.parseHtml(q)
-		raise cherrypy.HTTPRedirect("/recipes/" + qstring)
+		recipe_dict = parsing.parseHtml(q)
+		qstring = urllib.urlencode(recipe_dict, doseq=True)
+		print qstring
+		raise cherrypy.HTTPRedirect("/parsed_recipe?" + qstring)
 

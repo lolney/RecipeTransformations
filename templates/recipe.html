@@ -27,7 +27,7 @@
             <h3> Ingredients </h3>
                 <ul>
                 % for ingredient in ingredients:
-                  <li>${ingredient}</li>
+                  <li>${ingredient["q"] + " " + ingredient["n"]}</li>
                 % endfor
                 </ul>
         </div>
