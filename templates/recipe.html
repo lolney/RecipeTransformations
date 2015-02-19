@@ -1,0 +1,43 @@
+<%inherit file="base.html"/>
+
+<%block name="subtitle"> - ${title}</%block>
+
+<%block name="content">
+    <div class="container" id="content">
+        <h2> ${title} </h2>
+        <div class="dropdown">
+        <div class="bs-example">
+            <ul class="nav nav-pills" role="tablist">
+            % for transform in transform_categories:
+                <li role="presentation" class="dropdown">
+                    <a id="drop4" href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" role="button" aria-expanded="false">
+                    ${transform["Name"]}
+                    <span class="caret"></span>
+                    </a>
+                    % for category in transform["Categories"]:
+                    <ul id="menu1" class="dropdown-menu" role="menu" aria-labelledby="drop4">
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="https://twitter.com/fat">${category}</a></li>
+                    </ul>
+                    % endfor
+                </li>
+            % endfor
+            </ul> 
+        </div>
+        <div id="ingedients">
+            <h3> Ingredients </h3>
+                <ul>
+                % for ingredient in ingredients:
+                  <li>${ingredient}</li>
+                % endfor
+                </ul>
+        </div>
+        <div id="instructions">
+            <h3> Instructions </h3>
+                <ul>
+                % for instruction in instructions:
+                  <li>${instruction}</li>
+                % endfor
+                </ul>
+        </div>
+    </div>
+</%block>
