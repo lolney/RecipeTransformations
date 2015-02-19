@@ -1,12 +1,9 @@
 import cherrypy
-import src.tools.parsing as parsing
+import src.nlp.parsing as parsing
+import src.tools.templates as templates
 from mako.template import Template
 from mako.lookup import TemplateLookup
 
-def lookup(templatename):
-	mylookup = TemplateLookup(directories=['templates'])
-	mytemplate = mylookup.get_template(templatename)
-	return mytemplate
 
 class Root(object):
 	@cherrypy.expose
@@ -16,7 +13,7 @@ class Root(object):
 
 	@cherrypy.expose
 	def recipes(self, name="Cherry Pie"):
-		mytemplate = lookup('recipe.html')
+		mytemplate = templates.lookup('recipe.html')
 		return mytemplate.render(title=name,
 			ingredients=["Coffee","Tea","Milk"],
 			instructions=["Put the egg in the milk"],
