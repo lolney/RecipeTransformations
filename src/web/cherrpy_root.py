@@ -1,14 +1,12 @@
 import cherrypy
 import src.nlp.parsing as parsing
 import src.tools.templates as templates
-from mako.template import Template
-from mako.lookup import TemplateLookup
 
 
 class Root(object):
 	@cherrypy.expose
 	def index(self):
-		mytemplate = lookup('index.html')
+		mytemplate = templates.lookup('index.html')
 		return mytemplate.render()
 
 	@cherrypy.expose
