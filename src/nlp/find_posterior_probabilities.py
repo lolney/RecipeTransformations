@@ -1,3 +1,5 @@
+import pymongo, nltk
+
 # Download a bunch of classified recipes
 def downloadRecipe(x):
 
