@@ -1,7 +1,7 @@
 from BeautifulSoup import BeautifulSoup
 import urllib2
 
-def get_raw(url):
+def parse_raw(url):
 
 	resp = urllib2.urlopen(url)
 	html = resp.read();
@@ -16,9 +16,9 @@ def getIngredients(html):
 
 	ingredients = [];
 	for ingredient in ingredient_lis:
-		ingredient_amount = ingredient.find('span', attrs={'class':'ingredient-amount'})
-		ingredient_name = ingredient.find('span', attrs={'class':'ingredient-name'})
-		ingredients.append({"q": ingredient_amount.text, "n": ingredient_name.text})
+		ingredient_amount = ingredient.find('span', attrs={'class':'ingredient-amount'}).text
+		ingredient_name = ingredient.find('span', attrs={'class':'ingredient-name'}).text
+		ingredients.append({"q": ingredient_amount, "n": ingredient_name})
 
 	return ingredients
 
@@ -41,7 +41,7 @@ def getName(html):
 
 def parseHtml(url):
 
-	parsed_html = get_raw(url)
+	parsed_html = parse_raw(url)
 
 	name = getName(parsed_html)
 	ingredients = getIngredients(parsed_html)

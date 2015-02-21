@@ -22,7 +22,7 @@ class Root(object):
 	def parsed_recipe(self, **kwargs):
 
 		ingredients = [];
-		for item in kwargs["ingredients"]:
+		for item in kwargs["ingredients"]: # Cherrypy turns the dictionaries into strings
 			ingredients.append(ast.literal_eval(item))
 
 		mytemplate = templates.lookup('recipe.html')
