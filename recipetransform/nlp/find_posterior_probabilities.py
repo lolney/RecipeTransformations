@@ -3,10 +3,11 @@ import pymongo, nltk
 # Download a bunch of classified recipes
 def downloadRecipe(x):
 
-	with open ("test.txt", "r") as myfile:
-    	data=myfile.read()
+	import random, string
+	data = ' '.join(random.choice(string.ascii_uppercase) for _ in range(1000))
+	category = random.choice(['a','b','c'])
 
-	return (data, "category")
+	return (data, category)
 
 
 def setDict(key, dict, value):
@@ -22,15 +23,15 @@ def addDict(key, dict, value):
 
 	if key in dict:
 		dict[key] = dict[key] + value
-	else;
+	else:
 		dict[key] = value
 	return dict
 
 
-def findPosteriors(recipe, freqdist):
+def findWordCountForRecipe(recipe, freqdist):
 
-	for word in nltk.tokenize.word_tokenize(recipe)
-		addDict(word, freqdist, 1)
+	for word in nltk.tokenize.word_tokenize(recipe):
+		freqdist = addDict(word, freqdist, 1)
 
 	return freqdist
 
@@ -45,30 +46,25 @@ def findWordCounts(freqdists):
 	return aggregate
 
 
-def DBDump(posteriors, db):
-	pass 
-
 def DBconnect():
-	client = MongoClient('mongodb://localhost:27017/')
+	client = pymongo.MongoClient('mongodb://localhost:27017/')
 	db = client.recipes
 
 	return db
 
-def main():
-
-"""
-Count words for each recipe type : p(word | recipe)
-Get count for each recipe type : p(recipe)
-Merge counts : p(word)
-Find p(word | recipe) * p(recipe) / p(word) for each word
-Store this somewhere
-"""
-
+def findPosteriors(download_function=downloadRecipe):
+	"""
+	Count words for each recipe type : p(word | recipe)
+	Get count for each recipe type : p(recipe)
+	Merge counts : p(word)
+	Find p(word | recipe) * p(recipe) / p(word) for each word
+	Store this somewhere
+	"""
 	freqdists = {}
-	for x in xrange(1): # loop over recipes
-		recipe, cat = downloadRecipe(x)
+	for x in xrange(10000): # loop over recipes
+		recipe, cat = download_function(x)
 		freqdist = setDict(cat, freqdists, {})
-		findPosteriors(recipe, freqdist)
+		findWordCountForRecipe(recipe, freqdist)
 
 	# total count of each word
 	word_counts = findWordCounts(freqdists)
@@ -76,12 +72,20 @@ Store this somewhere
 	posteriors = {}
 	for word in word_counts:
 		posteriors[word] = {}
-		for cat in recipe_counts:
+		for cat in freqdists:
+			if word not in freqdists[cat]:
+				freqdists[cat][word] = 0
 			# p(recipe | word)
 			posteriors[word][cat] = float(freqdists[cat][word]) / float(word_counts[word])
 
+	return posteriors
+
+def main():
+
+	posteriors = findPosteriors()
 	db = DBconnect()
-	DBDump(posteriors, db)
+	db.posteriors.drop()
+	db.posteriors.insert(posteriors)
 
 
 if __name__ == "__main__":
