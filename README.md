@@ -1,0 +1,7 @@
+# RecipeTransformations
+
+To install dependencies:
+<tt>pip install -r requirements.txt<tt>
+
+To start the Cherrypy webserver:
+<tt>python start_webserver.py<tt>
