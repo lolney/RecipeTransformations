@@ -1,5 +1,4 @@
-import imp
-parsing = imp.load_source('src.nlp.parsing', '../src/nlp/parsing.py')
+import recipetransform.nlp.parsing as parsing
 import BeautifulSoup
 
 def get_allrecipes_urls():

@@ -1,7 +1,7 @@
 import cherrypy
 import urllib, ast
-import src.nlp.parsing as parsing
-import src.tools.templates as templates
+import recipetransform.nlp.parsing as parsing
+import recipetransform.tools.templates as templates
 
 
 class Root(object):
