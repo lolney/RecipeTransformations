@@ -14,11 +14,15 @@ def getIngredients(html):
 
 	ingredient_lis = content.findAll(id='liIngredient')
 
-	ingredients = [];
+	ingredients = []
+	print "Jesus"
 	for ingredient in ingredient_lis:
-		ingredient_amount = ingredient.find('span', attrs={'class':'ingredient-amount'}).text
-		ingredient_name = ingredient.find('span', attrs={'class':'ingredient-name'}).text
-		ingredients.append({"q": ingredient_amount, "n": ingredient_name})
+		try:
+			ingredient_amount = ingredient.find('span', attrs={'class':'ingredient-amount'}).text
+			ingredient_name = ingredient.find('span', attrs={'class':'ingredient-name'}).text
+			ingredients.append({"q": ingredient_amount, "n": ingredient_name})
+		except AttributeError:
+			pass
 
 	return ingredients
 
@@ -34,6 +38,7 @@ def getInstructions(html):
 		instructions.append(instruction_wrapper.text)
 
 	return instructions
+
 
 def getName(html):
 	return html.body.find(id="itemTitle").text
