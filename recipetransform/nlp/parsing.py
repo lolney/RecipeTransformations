@@ -1,6 +1,6 @@
 from BeautifulSoup import BeautifulSoup
-from parsing.parse_instruction import parse_instruction
-from parsing.parse_ingredient import parse_ingredient
+from recipetransform.nlp.parse_instruction import parse_instruction
+from recipetransform.nlp.parse_ingredient import parse_ingredient
 import urllib2
 
 def parse_raw(url):
