@@ -1,14 +1,5 @@
 import pymongo, nltk
 
-# Download a bunch of classified recipes
-def downloadRecipe(x):
-
-	import random, string
-	data = ' '.join(random.choice(string.ascii_uppercase) for _ in range(1000))
-	category = random.choice(['a','b','c'])
-
-	return (data, category)
-
 
 def setDict(key, dict, value):
 

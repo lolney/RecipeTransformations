@@ -14,5 +14,7 @@ def parse_instruction(list_of_str):
 	return {
 		"cooking method" : "primary",
 		"secondary cooking methods" : ["",""],
-		"cooking tools" : ["",""]
+		"cooking tools" : ["",""],
+		"prep steps" : ["",""],
+		"cook steps" : ["",""]
 	}

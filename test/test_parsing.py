@@ -37,7 +37,7 @@ def try_link(link):
 
 def test_parsing():
 	links = get_allrecipes_urls()
-	for link in links:
+	for link in links[:5]:
 		try_link(link)
 
 if __name__ == "__main__":
