@@ -10,7 +10,7 @@ Probably also want to pass the ingredient list, to filter those words out,
 and the name, which will be important in deciding the primary cooking method
 """
 
-def parse_instructions(instruction_lists):
+def parse_instructions(instruction_list):
 	return {
 		"cooking method" : "primary",
 		"secondary cooking methods" : ["",""],
