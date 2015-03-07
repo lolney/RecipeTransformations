@@ -1,4 +1,5 @@
 import pymongo, nltk
+import recipetransform.tools.database as tools
 
 
 def setDict(key, dict, value):
@@ -36,13 +37,6 @@ def findWordCounts(freqdists):
 
 	return aggregate
 
-
-def DBconnect():
-	client = pymongo.MongoClient('mongodb://localhost:27017/')
-	db = client.recipes
-
-	return db
-
 def findPosteriors(download_function=downloadRecipe):
 	"""
 	Count words for each recipe type : p(word | recipe)
@@ -74,7 +68,7 @@ def findPosteriors(download_function=downloadRecipe):
 def main():
 
 	posteriors = findPosteriors()
-	db = DBconnect()
+	db = tools.DBconnect()
 	db.posteriors.drop()
 	db.posteriors.insert(posteriors)
 

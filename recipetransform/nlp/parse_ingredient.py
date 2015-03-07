@@ -14,5 +14,6 @@ def parse_ingredient(quantity_string, rest):
 		"quantity":	1,
 		"measurement":	"pinch",
 		"descriptor":	"table",
-		"preparation":	"none"
+		"preparation":	"none",
+		"prep-description":	"none"
 	}
