@@ -1,9 +1,12 @@
 TODO:
 - Ingredient classification (spices, protein, etc.)
+	- Food api? : http://ndb.nal.usda.gov/ndb/foods
 - Transformation model (doing lookups in the ingredients database, figuring out what needs to get replaced (whether quantity gets changed, etc.), and reflecting changes in the front-end)
 
 In progress:
 - Ingredient parsing
 - Instruction parsing
+ 	- breaking up steps into ingredients, tools, methods, times
+	- don’t actually have to do prep steps/cook steps?
 - Getting recipe probabilities for ingredients 
 - Low-calorie, low-sodium lookups
