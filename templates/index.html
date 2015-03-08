@@ -2,9 +2,18 @@
 
 <%block name="content">
 <div class="container" id="content">
-	<p> Try this: http://allrecipes.com/Recipe/Asian-Beef-with-Snow-Peas </p>
 	<form method="get" action="search">
 	<input type="text" name="q" placeholder="Enter a url" size="50"></form>
-	<a class="btn btn-lg btn-default" href="/random">Random</a>
+	<div>
+		<h3> Examples </h3>
+		<ul>
+             <li><a href="/search?q=http://allrecipes.com/Recipe/Asian-Beef-with-Snow-Peas">
+			Asian Beef with Snow Peas</a></li>
+			<li><a href="/search?q=http://allrecipes.com/Recipe/Zucchini-Herb-Casserole">
+			Zucchini Herb Casserole
+			</a></li>
+        </ul>
+        <a class="btn btn-lg btn-default" href="/random">Random</a>
+	</div>
 </div>
 </%block>
