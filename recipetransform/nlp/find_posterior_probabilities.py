@@ -1,16 +1,16 @@
 import pymongo, nltk
 import recipetransform.tools.database as tools
+import recipetransform.nlp.yummly as yum
 from recipetransform.nlp.parse_ingredient import parse_ingredient
 
 
-def setDict(key, dict, value):
+def setDict(keys, dict, value):
 
-	if key in dict:
-		return dict[key]
-	else:
-		dict[key] = {}
-		return dict[key]
+	for key in keys:
+		if key not in dict:
+			dict[key] = {}
 
+	return dict
 
 def addDict(key, dict, value):
 
@@ -18,6 +18,7 @@ def addDict(key, dict, value):
 		dict[key] = dict[key] + value
 	else:
 		dict[key] = value
+
 	return dict
 
 
@@ -29,14 +30,16 @@ def decode(word):
 	return name.split("&")
 
 
-def findWordCountForRecipe(ingredients, freqdist):
+def findWordCountForRecipe(cats, ingredients, freqdists):
 
-	for ingredient in ingredients:
-		for descriptor in ingredient:
-			word = encode(ingredient[name], descriptor)
-			freqdist = addDict(word, freqdist, 1)
+	for category in cats:
+		freqdist = freqdists[category]
+		for ingredient in ingredients:
+			for descriptor in ingredient:
+				word = encode(ingredient[name], descriptor)
+				freqdists[category] = addDict(word, freqdist, 1)
 
-	return freqdist
+	return freqdists
 
 
 def findWordCounts(freqdists):
@@ -49,21 +52,28 @@ def findWordCounts(freqdists):
 	return aggregate
 
 
-def findPosteriors(download_function=downloadRecipe):
+def findPosteriors(ids, download_function=downloadRecipe):
 	"""
+	ids: dictionary of id -> cat
+	download_function: takes an id and returns a list of strings (representing ingredients)
+
 	Count words for each recipe type : p(word | recipe)
 	Get count for each recipe type : p(recipe)
 	Merge counts : p(word)
 	Find p(word | recipe) * p(recipe) / p(word) for each word
 	Store this somewhere
 	"""
+	# freqdists: dictionary keyed by category, with values as dictionaries keyed by word
 	freqdists = {}
-	for x in xrange(10000): # loop over recipes
-		ingredients, cat = download_function(x)
+	for id in ids: # loop over recipes
+		ingredients = download_function(id)
+		cats = ids[id]
 		# TODO: write parser
 		parsed_ingredients = [parse_ingredient(ingredient) for ingredient in ingredients]
-		freqdist = setDict(cat, freqdists, {})
-		findWordCountForRecipe(parsed_ingredients, freqdist)
+		# add all the categories to the freqdists
+		freqdists = setDict(cats, freqdists, {})
+		# set word counts for each word in each category
+		findWordCountForRecipe(cats, parsed_ingredients, freqdists)
 
 	# total count of each word
 	word_counts = findWordCounts(freqdists)
@@ -82,7 +92,8 @@ def findPosteriors(download_function=downloadRecipe):
 
 def main():
 
-	posteriors = findPosteriors()
+	ids = idsToCategories()
+	posteriors = findPosteriors(ids, yum.getRecipe)
 	db = tools.DBconnect()
 	db.posteriors.drop()
 	db.posteriors.insert(posteriors)
