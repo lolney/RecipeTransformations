@@ -28,7 +28,8 @@ class Root(object):
 		mytemplate = templates.lookup('recipe.html')
 		return mytemplate.render(title=kwargs["name"],
 			ingredients=ingredients,
-			instructions=kwargs["instructions"],
+			prep_steps=kwargs["prep steps"],
+			cook_steps=kwargs["cook steps"],
 			transform_categories=[{"Name" : "Varieties", "Categories" : ["Italian", "French"]}])
 
 	@cherrypy.expose

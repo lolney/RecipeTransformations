@@ -33,8 +33,15 @@
         </div>
         <div id="instructions">
             <h3> Instructions </h3>
+                <h4> Prep </h4>
                 <ul>
-                % for instruction in instructions:
+                % for instruction in prep_steps:
+                  <li>${instruction}</li>
+                % endfor
+                </ul>
+                <h4> Cook </h4>
+                <ul>
+                % for instruction in cook_steps:
                   <li>${instruction}</li>
                 % endfor
                 </ul>

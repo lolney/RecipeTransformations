@@ -1,5 +1,5 @@
 from BeautifulSoup import BeautifulSoup
-from recipetransform.nlp.parse_instruction import parse_instruction
+from recipetransform.nlp.parse_instruction import parse_instructions
 from recipetransform.nlp.parse_ingredient import parse_ingredient
 import urllib2
 
@@ -39,9 +39,10 @@ def getInstructions(html):
 	instructions = []
 	for instruction in instruction_lis:
 		instruction_text = instruction.find('span').text;
-		#parsed_ingred = parse_instruction(instruction_text)
 		instructions.append(instruction_text)
 
+	#parsed_instructions = parse_instructions(instructions)
+	# TODO: possibly separate prep instructions, cook instructions in the interface
 	return instructions
 
 
@@ -57,4 +58,7 @@ def parseHtml(url):
 	ingredients = getIngredients(parsed_html)
 	instructions = getInstructions(parsed_html)
 
-	return {"name" : name, "ingredients" : ingredients, "instructions" : instructions}
+	return {"name" : name,
+	 "ingredients" : ingredients,
+	 "prep steps" : instructions,
+	 "cook steps" : ["This is a cook step", "This is another"]}
