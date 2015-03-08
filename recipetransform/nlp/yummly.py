@@ -22,13 +22,14 @@ def listToQueryString(query_param, lst):
 		tmp = query_param + "=" + item
 		formated_items.append(tmp)
 
-	return urllib.quote_plus("&".join(formated_items))
+	return "&".join(formated_items)
 
 
 def doQuery(endpoint, query, addl_parms=""):
 	qstring = urllib.urlencode(query)
 	url = "http://api.yummly.com/v1/api/" + endpoint + qstring + addl_parms
-	result_string = urllib2.urlopen(url).read()
+	print url
+	result_string = urllib.urlopen(url).read()
 	result = json.loads(result_string)
 
 	return result
@@ -106,30 +107,34 @@ def idsToCategories():
 
 
 def doDownload():
-	attributes = {"cuisine":"allowedCuisine[]"}
+	attributes = {"diet":"allowedDiet[]","cuisine":"allowedCuisine[]"}
 	results_dictionary = {}
 
-	# diet
-	categories, search_terms_list = getSearchParams("diet")
-	for category, search_term in zip(categories, search_terms_list):
-		print search_term
-		search_terms_string = listToQueryString("allowedDiet[]", [search_term])
-		results = getRecipesList(search_terms_string)
-
-		for result in results:
-			id = result["id"]
-			results_dictionary = addItemToDict(category, results_dictionary, id)
-
-
-	# other attributes
+	# other attributes 
+	"""
 	for attribute in attributes:
 		categories, search_terms_list = getSearchParams(attribute)
 		search_terms_string = listToQueryString(attributes[attribute], search_terms_list)
-		results = getRecipesList(search_terms_string, 2000)
+		results = getRecipesList(search_terms_string, 50)
 
 		for result in results:
 			for category in result["attributes"][attribute]:
-				addItemToDict(category, results_dictionary, result["id"])
+				results_dictionary = addItemToDict(category, results_dictionary, result["id"]) """
+
+	# diet
+	for attribute in attributes:
+		categories, search_terms_list = getSearchParams(attribute)
+		for category, search_term in zip(categories, search_terms_list):
+			print search_term
+			search_terms_string = listToQueryString(attributes[attribute], [search_term])
+			max_results = 200 if attribute == "diet" else 100
+			results = getRecipesList(search_terms_string, max_results)
+
+			for result in results:
+				id = result["id"]
+				results_dictionary = addItemToDict(category, results_dictionary, id)
+
+
 	
 
 	with open("outfile.json", "w+") as file:
@@ -138,3 +143,5 @@ def doDownload():
 	
 	#insertResults("categories", results_dictionary)
 	#insertResults("recipe_ids", list(ids))
+
+doDownload()
