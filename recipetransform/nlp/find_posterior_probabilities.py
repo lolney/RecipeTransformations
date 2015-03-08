@@ -1,5 +1,6 @@
 import pymongo, nltk
 import recipetransform.tools.database as tools
+from recipetransform.nlp.parse_ingredient import parse_ingredient
 
 
 def setDict(key, dict, value):
@@ -20,10 +21,20 @@ def addDict(key, dict, value):
 	return dict
 
 
-def findWordCountForRecipe(recipe, freqdist):
+def encode(name, descriptor):
+	return name + "&" + descriptor
 
-	for word in nltk.tokenize.word_tokenize(recipe):
-		freqdist = addDict(word, freqdist, 1)
+
+def decode(word):
+	return name.split("&")
+
+
+def findWordCountForRecipe(ingredients, freqdist):
+
+	for ingredient in ingredients:
+		for descriptor in ingredient:
+			word = encode(ingredient[name], descriptor)
+			freqdist = addDict(word, freqdist, 1)
 
 	return freqdist
 
@@ -47,9 +58,11 @@ def findPosteriors(download_function=downloadRecipe):
 	"""
 	freqdists = {}
 	for x in xrange(10000): # loop over recipes
-		recipe, cat = download_function(x)
+		ingredients, cat = download_function(x)
+		# TODO: write parser
+		parsed_ingredients = [parse_ingredient(ingredient) for ingredient in ingredients]
 		freqdist = setDict(cat, freqdists, {})
-		findWordCountForRecipe(recipe, freqdist)
+		findWordCountForRecipe(parsed_ingredients, freqdist)
 
 	# total count of each word
 	word_counts = findWordCounts(freqdists)

@@ -1,4 +1,5 @@
 import urllib, urllib2, os, json
+from sets import Set
 import recipetransform.tools.database as tools
 
 def getAuthInfo():
@@ -7,7 +8,7 @@ def getAuthInfo():
 
 	query = {
 	"_app_id":app_id,
-	"_app_key":auth_key
+	"_app_key":auth_key,
 	}
 
 	return query
@@ -20,7 +21,7 @@ def listToQueryString(query_param, lst):
 		tmp = query_param + "=" + item
 		formated_items.append(tmp)
 
-	return "&".join(formated_items)
+	return urllib.quote_plus("&".join(formated_items))
 
 
 def doQuery(endpoint, query, addl_parms=""):
@@ -32,21 +33,27 @@ def doQuery(endpoint, query, addl_parms=""):
 	return result
 
 
-def getRecipesList(search_params):
+def getRecipesList(search_params, max_result=100):
 	# do a query for every category we might want
-
 	query = getAuthInfo()
-	query["allowedCuisine[]"] = "cuisine^cuisine-american"
-
-	return doQuery("recipes?", query)["matches"]
-
-	#return recipe_ids
+	return doQuery("recipes?", query, "&" + search_params + "&maxResult=" + str(max_result))["matches"]
 
 
 def getRecipe(id):
 	query = getAuthInfo()
 
-	return doQuery("recipe/" + id + "?", query)
+	result = doQuery("recipe/" + id + "?", query)
+	return result["ingredientLines"]
+
+
+def getDescription(item):
+	desc = ""
+	try:
+		desc = item["shortDescription"]
+	except KeyError:
+		desc = item["description"]
+
+	return desc
 
 
 def getSearchParams(category):
@@ -59,21 +66,62 @@ def getSearchParams(category):
 	json_str = jsonp[ jsonp.index("[") : jsonp.rindex(")") ]
 	json_obj = json.loads(json_str)
 
-	return ([item["shortDescription"] for item in json_obj], [item["searchValue"] for item in json_obj])
+	print json_obj
+
+	return ([getDescription(item) for item in json_obj], [item["searchValue"] for item in json_obj])
 
 
-def insertResults(result):
+def insertResults(collection, results):
 	db = tools.DBconnect()
-	db.recipes.insert(result)
+	for result in results:
+		db[collection].insert(result)
+
+
+def addItemToDict(key, dict, value):
+
+	if key in dict:
+		dict[key].append(value)
+	else:
+		dict[key] = [value]
+	return dict
 
 
 def doDownload():
-	diets, diet_search_terms = getSearchParams("diet")
-	cuisines, cuisine_search_terms = getSearchParams("cuisine")
+	attributes = {"cuisine":"allowedCuisine[]"}
+	results_dictionary = {}
+	ids = Set()
 
-	for category in categories:
-		search_terms = listToQueryString(cuisine_search_terms)
-		results = getRecipesList(search_terms)
-		for recipe in results:
-			id = recipe["id"]
-			getRecipe(id)
+	# diet
+	categories, search_terms_list = getSearchParams("diet")
+	for category, search_term in zip(categories, search_terms_list):
+		print search_term
+		search_terms_string = listToQueryString("allowedDiet[]", [search_term])
+		results = getRecipesList(search_terms_string)
+
+		for result in results:
+			id = result["id"]
+			results_dictionary = addItemToDict(category, results_dictionary, id)
+			ids.add(id)
+
+
+	# other attributes
+	for attribute in attributes:
+		categories, search_terms_list = getSearchParams(attribute)
+		search_terms_string = listToQueryString(attributes[attribute], search_terms_list)
+		results = getRecipesList(search_terms_string, 2000)
+
+		for result in results:
+			for category in result["attributes"][attribute]:
+				addItemToDict(category, results_dictionary, result["id"])
+			ids.add(result["id"])
+	
+
+	with open("outfile.json", "w+") as file:
+		answers = {
+		"categories": results_dictionary,
+		"recipe_ids": list(ids)}
+		json.dump(answers, file) 
+	
+	
+	insertResults("categories", results_dictionary)
+	insertResults("recipe_ids", list(ids))
