@@ -31,13 +31,18 @@ def decode(word):
 
 
 def findWordCountForRecipe(cats, ingredients, freqdists):
+	""" 
+	cats -  a list of strings
+	ingredients - a list of ingredient dictionaries
+	"""
 
 	for category in cats:
 		freqdist = freqdists[category]
 		for ingredient in ingredients:
-			for descriptor in ingredient:
-				word = encode(ingredient[name], descriptor)
-				freqdists[category] = addDict(word, freqdist, 1)
+			word1 = encode(ingredient["name"], ingredient["descriptor"])
+			word2 = encode(ingredient["name"], "")
+			freqdist = addDict(word1, freqdist, 1)
+			freqdist = addDict(word2, freqdist, 1)
 
 	return freqdists
 
@@ -52,7 +57,7 @@ def findWordCounts(freqdists):
 	return aggregate
 
 
-def findPosteriors(ids, download_function=downloadRecipe):
+def findPosteriors(ids, download_function):
 	"""
 	ids: dictionary of id -> list of cats
 	download_function: takes an id and returns a list of strings (representing ingredients)
@@ -71,11 +76,11 @@ def findPosteriors(ids, download_function=downloadRecipe):
 		ingredients = download_function(id)
 		cats = ids[id]
 		# TODO: write parser
-		parsed_ingredients = [parse_ingredient(ingredient) for ingredient in ingredients]
+		#parsed_ingredients = [parse_ingredient(ingredient) for ingredient in ingredients]
 		# add all the categories to the freqdists
 		freqdists = setDict(cats, freqdists, {})
 		# set word counts for each word in each category
-		findWordCountForRecipe(cats, parsed_ingredients, freqdists)
+		findWordCountForRecipe(cats, ingredients, freqdists)
 
 	# total count of each word
 	word_counts = findWordCounts(freqdists)

@@ -143,6 +143,12 @@ def doDownload():
 	#insertResults("categories", results_dictionary)
 	#insertResults("recipe_ids", list(ids))
 
-doDownload()
-ids = idsToCategories()
-print len(ids)
+
+def main():
+	doDownload()
+	ids = idsToCategories()
+	print len(ids)
+
+
+if __name__ == "__main__":
+	main()
