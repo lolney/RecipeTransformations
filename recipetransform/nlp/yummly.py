@@ -2,6 +2,7 @@ import urllib, urllib2, os, json
 from sets import Set
 import recipetransform.tools.database as tools
 
+
 def getAuthInfo():
 	app_id = os.environ.get('YummlyId')
 	auth_key = os.environ.get('YummlyKey')
@@ -57,7 +58,7 @@ def getDescription(item):
 
 
 def getSearchParams(category):
-	
+
 	endpoint = "metadata/" + category + "?"
 	query = getAuthInfo()
 	qstring = urllib.urlencode(query)

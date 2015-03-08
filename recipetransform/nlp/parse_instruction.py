@@ -98,7 +98,7 @@ def parse_instructions(instruction_list):
 	return {
 		"cooking method" : "primary",
 		"secondary cooking methods" : ["",""],
-		"cooking tools" : ["",""],
+		"cooking tools" : tools,
 		"prep steps" : ["",""],
 		"cook steps" : ["",""]
 	}

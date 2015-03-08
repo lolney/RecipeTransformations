@@ -2,6 +2,7 @@ import cherrypy
 import urllib, ast
 import recipetransform.nlp.parsing as parsing
 import recipetransform.tools.templates as templates
+import recipetransform.web.allrecipes as allrecipes
 
 
 class Root(object):
@@ -9,6 +10,11 @@ class Root(object):
 	def index(self):
 		mytemplate = templates.lookup('index.html')
 		return mytemplate.render()
+
+	@cherrypy.expose
+	def random(self):
+		url = allrecipes.random_recipe()
+		raise cherrypy.HTTPRedirect("/search?q=" + urllib.quote_plus(url))
 
 	@cherrypy.expose
 	def recipes(self, name="Cherry Pie"):

@@ -1,19 +1,7 @@
 import recipetransform.nlp.parsing as parsing
+from recipetransform.web.allrecipes import get_allrecipes_urls
 import BeautifulSoup
 
-def get_allrecipes_urls():
-	url = "http://allrecipes.com/recipes/main.aspx?Page=1#recipes"
-	html = parsing.parse_raw(url);
-
-	link_containers = html.body.findAll(id='divGridItemWrapper')
-
-	links = []
-	for l in link_containers:
-		link = l.find('a')
-		href = "http://allrecipes.com" + link['href']
-		links.append(href)
-
-	return links
 
 def try_link(link):
 
