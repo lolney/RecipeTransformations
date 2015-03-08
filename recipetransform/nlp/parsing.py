@@ -11,6 +11,7 @@ def parse_raw(url):
 
 	return parsed_html
 
+
 def getIngredients(html):
 	content = html.body.find(id='zoneIngredients')
 

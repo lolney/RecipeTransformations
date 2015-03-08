@@ -48,6 +48,7 @@ def findWordCounts(freqdists):
 
 	return aggregate
 
+
 def findPosteriors(download_function=downloadRecipe):
 	"""
 	Count words for each recipe type : p(word | recipe)
@@ -77,6 +78,7 @@ def findPosteriors(download_function=downloadRecipe):
 			posteriors[word][cat] = float(freqdists[cat][word]) / float(word_counts[word])
 
 	return posteriors
+
 
 def main():
 

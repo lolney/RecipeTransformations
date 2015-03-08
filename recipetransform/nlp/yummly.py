@@ -8,7 +8,7 @@ def getAuthInfo():
 
 	query = {
 	"_app_id":app_id,
-	"_app_key":auth_key,
+	"_app_key":auth_key
 	}
 
 	return query
@@ -57,6 +57,7 @@ def getDescription(item):
 
 
 def getSearchParams(category):
+	
 	endpoint = "metadata/" + category + "?"
 	query = getAuthInfo()
 	qstring = urllib.urlencode(query)
@@ -86,10 +87,26 @@ def addItemToDict(key, dict, value):
 	return dict
 
 
+def getCats():
+	with open("outfile.json", "r") as file:
+		return json.load(file)
+
+
+def idsToCategories():
+
+	ids = {}
+	categories = getCats()
+
+	for cat in categories:
+		for id in categories[cat]:
+			ids = addItemToDict(id, ids, cat)
+
+	return ids
+
+
 def doDownload():
 	attributes = {"cuisine":"allowedCuisine[]"}
 	results_dictionary = {}
-	ids = Set()
 
 	# diet
 	categories, search_terms_list = getSearchParams("diet")
@@ -101,7 +118,6 @@ def doDownload():
 		for result in results:
 			id = result["id"]
 			results_dictionary = addItemToDict(category, results_dictionary, id)
-			ids.add(id)
 
 
 	# other attributes
@@ -113,15 +129,11 @@ def doDownload():
 		for result in results:
 			for category in result["attributes"][attribute]:
 				addItemToDict(category, results_dictionary, result["id"])
-			ids.add(result["id"])
 	
 
 	with open("outfile.json", "w+") as file:
-		answers = {
-		"categories": results_dictionary,
-		"recipe_ids": list(ids)}
-		json.dump(answers, file) 
+		json.dump(results_dictionary, file) 
 	
 	
-	insertResults("categories", results_dictionary)
-	insertResults("recipe_ids", list(ids))
+	#insertResults("categories", results_dictionary)
+	#insertResults("recipe_ids", list(ids))
