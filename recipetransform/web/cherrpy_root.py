@@ -22,7 +22,10 @@ class Root(object):
 		return mytemplate.render(title=name,
 			ingredients=[{"q":"1","n":"Coffee"}],
 			instructions=["Put the egg in the milk", "Put the jam in the marshmellow"],
-			transform_categories=[{"Name" : "Varieties", "Categories" : ["Italian", "French"]}])
+			transform_categories=[
+			{"Name" : "Diet", "Categories" : ["Vegan", "Vegetarian"]},
+			{"Name" : "Cuisine", "Categories" : ["Italian", "French"]}
+			])
 
 	@cherrypy.expose
 	def parsed_recipe(self, **kwargs):
@@ -36,7 +39,10 @@ class Root(object):
 			ingredients=ingredients,
 			prep_steps=kwargs["prep steps"],
 			cook_steps=kwargs["cook steps"],
-			transform_categories=[{"Name" : "Varieties", "Categories" : ["Italian", "French"]}])
+			transform_categories=[
+			{"Name" : "Diet", "Categories" : ["Vegan", "Vegetarian"]},
+			{"Name" : "Cuisine", "Categories" : ["Italian", "French"]}
+			])
 
 	@cherrypy.expose
 	def search(self, q=""):
