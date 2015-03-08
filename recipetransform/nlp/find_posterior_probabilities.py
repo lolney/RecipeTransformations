@@ -54,13 +54,15 @@ def findWordCounts(freqdists):
 
 def findPosteriors(ids, download_function=downloadRecipe):
 	"""
-	ids: dictionary of id -> cat
+	ids: dictionary of id -> list of cats
 	download_function: takes an id and returns a list of strings (representing ingredients)
 
 	Count words for each recipe type : p(word | recipe)
 	Get count for each recipe type : p(recipe)
 	Merge counts : p(word)
 	Find p(word | recipe) * p(recipe) / p(word) for each word
+	In this case, freqdists[cat][word] is  #(word and cat), so we just need to divide by #(word)
+	to get p(cat | word)
 	Store this somewhere
 	"""
 	# freqdists: dictionary keyed by category, with values as dictionaries keyed by word

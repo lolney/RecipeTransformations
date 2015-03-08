@@ -110,7 +110,7 @@ def doDownload():
 	attributes = {"diet":"allowedDiet[]","cuisine":"allowedCuisine[]"}
 	results_dictionary = {}
 
-	# other attributes 
+	# other attributes (doesn't work very well)
 	"""
 	for attribute in attributes:
 		categories, search_terms_list = getSearchParams(attribute)
@@ -121,13 +121,12 @@ def doDownload():
 			for category in result["attributes"][attribute]:
 				results_dictionary = addItemToDict(category, results_dictionary, result["id"]) """
 
-	# diet
 	for attribute in attributes:
 		categories, search_terms_list = getSearchParams(attribute)
 		for category, search_term in zip(categories, search_terms_list):
 			print search_term
 			search_terms_string = listToQueryString(attributes[attribute], [search_term])
-			max_results = 200 if attribute == "diet" else 100
+			max_results = 400 if attribute == "diet" else 250
 			results = getRecipesList(search_terms_string, max_results)
 
 			for result in results:
@@ -145,3 +144,5 @@ def doDownload():
 	#insertResults("recipe_ids", list(ids))
 
 doDownload()
+ids = idsToCategories()
+print len(ids)
