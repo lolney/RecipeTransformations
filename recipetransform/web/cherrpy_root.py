@@ -34,11 +34,18 @@ class Root(object):
 		for item in kwargs["ingredients"]: # Cherrypy turns the dictionaries into strings
 			ingredients.append(ast.literal_eval(item))
 
+		# Need to wrap in list, if necessary
+		cook_steps = kwargs["cook steps"]
+		cook_steps = cook_steps if type(cook_steps) == type([]) else [cook_steps]
+
+		prep_steps = kwargs["prep steps"]
+		prep_steps = prep_steps if type(prep_steps) == type([]) else [prep_steps]
+
 		mytemplate = templates.lookup('recipe.html')
 		return mytemplate.render(title=kwargs["name"],
 			ingredients=ingredients,
-			prep_steps=kwargs["prep steps"],
-			cook_steps=kwargs["cook steps"],
+			prep_steps=prep_steps,
+			cook_steps=cook_steps,
 			transform_categories=[
 			{"Name" : "Diet", "Categories" : ["Vegan", "Vegetarian"]},
 			{"Name" : "Cuisine", "Categories" : ["Italian", "French"]}

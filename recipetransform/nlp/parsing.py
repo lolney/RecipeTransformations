@@ -60,5 +60,5 @@ def parseHtml(url):
 
 	return {"name" : name,
 	 "ingredients" : ingredients,
-	 "prep steps" : instructions,
-	 "cook steps" : ["This is a cook step", "This is another"]}
+	 "prep steps" : instructions[0],
+	 "cook steps" : instructions[1:]}
