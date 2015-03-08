@@ -1,0 +1,9 @@
+TODO:
+- Ingredient classification (spices, protein, etc.)
+- Transformation model (doing lookups in the ingredients database, figuring out what needs to get replaced (whether quantity gets changed, etc.), and reflecting changes in the front-end)
+
+In progress:
+- Ingredient parsing
+- Instruction parsing
+- Getting recipe probabilities for ingredients 
+- Low-calorie, low-sodium lookups

@@ -1,6 +1,7 @@
 # RecipeTransformations
 
 To install as package while installing dependencies (recommended):
+
 <tt>pip install -r requirements.txt -e .<tt>
 
 
