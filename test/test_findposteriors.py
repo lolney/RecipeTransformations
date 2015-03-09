@@ -37,6 +37,7 @@ def test_posteriors():
 
 	return results
 
+
 def main():
 	print test_posteriors()
 

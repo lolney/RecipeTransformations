@@ -98,9 +98,11 @@ def findPosteriors(ids, download_function):
 
 
 def main():
+	
+	ids_to_cats, ids_to_ingredients = idsToCategories()
+	get_ingredients = lambda id : ids_to_ingredients[id]
 
-	ids = idsToCategories()
-	posteriors = findPosteriors(ids, yum.getRecipe)
+	posteriors = findPosteriors(ids_to_cats, get_ingredients)
 	db = tools.DBconnect()
 	db.posteriors.drop()
 	db.posteriors.insert(posteriors)

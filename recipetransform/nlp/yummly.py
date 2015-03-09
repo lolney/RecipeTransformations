@@ -96,14 +96,18 @@ def getCats():
 
 def idsToCategories():
 
-	ids = {}
+	ids_to_cats = {}
+	ids_to_ingredients = {}
 	categories = getCats()
 
 	for cat in categories:
-		for id in categories[cat]:
-			ids = addItemToDict(id, ids, cat)
+		for recipe_dictionary in categories[cat]:
+			id = recipe_dictionary["id"]
+			ingredients = recipe_dictionary["ingredients"]
+			ids_to_cats = addItemToDict(id, ids_to_cats, cat)
+			ids_to_ingredients = addItemToDict(id, ids_to_ingredients, ingredients)
 
-	return ids
+	return ids_to_cats, ids_to_ingredients
 
 
 def doDownload():
@@ -131,7 +135,9 @@ def doDownload():
 
 			for result in results:
 				id = result["id"]
-				results_dictionary = addItemToDict(category, results_dictionary, id)
+				ingredients = result["ingredients"]
+				recipe_dict = {"id":id, "ingredients":ingredients}
+				results_dictionary = addItemToDict(category, results_dictionary, recipe_dict)
 
 
 	
@@ -146,8 +152,8 @@ def doDownload():
 
 def main():
 	doDownload()
-	ids = idsToCategories()
-	print len(ids)
+	ids_to_cats, ids_to_ingredients = idsToCategories()
+	print len(ids_to_ingredients)
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ TODO:
 - Transformation model (doing lookups in the ingredients database, figuring out what needs to get replaced (whether quantity gets changed, etc.), and reflecting changes in the front-end)
 
 In progress:
-- Ingredient parsing
+- Ingredient parsing 
 - Instruction parsing
  	- breaking up steps into ingredients, tools, methods, times
 	- don’t actually have to do prep steps/cook steps?
