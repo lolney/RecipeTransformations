@@ -35,14 +35,16 @@ def findWordCountForRecipe(cats, ingredients, freqdists):
 	cats -  a list of strings
 	ingredients - a list of ingredient dictionaries
 	"""
-
+	ingredients = sanitize(ingredients)
 	for category in cats:
 		freqdist = freqdists[category]
 		for ingredient in ingredients:
+			freqdist = addDict(ingredient, freqdist, 1)
+			"""
 			word1 = encode(ingredient["name"], ingredient["descriptor"])
 			word2 = encode(ingredient["name"], "")
 			freqdist = addDict(word1, freqdist, 1)
-			freqdist = addDict(word2, freqdist, 1)
+			freqdist = addDict(word2, freqdist, 1)"""
 
 	return freqdists
 
@@ -97,12 +99,28 @@ def findPosteriors(ids, download_function):
 	return posteriors
 
 
+def sanitize(lst):
+	import re
+
+	try:
+		lst = [re.search("[\w\s]+$", item).group(0) for item in lst]
+	except AttributeError:
+		print lst
+
+	return lst
+
+
 def main():
-	
-	ids_to_cats, ids_to_ingredients = idsToCategories()
+
+
+	ids_to_cats, ids_to_ingredients = yum.idsToCategories()
+	print ids_to_ingredients
 	get_ingredients = lambda id : ids_to_ingredients[id]
 
 	posteriors = findPosteriors(ids_to_cats, get_ingredients)
+
+	print sanitize(["(   oz.) tomato paste"])
+
 	db = tools.DBconnect()
 	db.posteriors.drop()
 	db.posteriors.insert(posteriors)

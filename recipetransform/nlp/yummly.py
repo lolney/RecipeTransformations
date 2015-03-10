@@ -88,9 +88,17 @@ def addItemToDict(key, dict, value):
 		dict[key] = [value]
 	return dict
 
+def addListToDict(key, dict, value):
+
+	if key in dict:
+		pass
+	else:
+		dict[key] = value
+	return dict
+
 
 def getCats():
-	with open("outfile.json", "r") as file:
+	with open("outfile_ingredients.json", "r") as file:
 		return json.load(file)
 
 
@@ -105,7 +113,7 @@ def idsToCategories():
 			id = recipe_dictionary["id"]
 			ingredients = recipe_dictionary["ingredients"]
 			ids_to_cats = addItemToDict(id, ids_to_cats, cat)
-			ids_to_ingredients = addItemToDict(id, ids_to_ingredients, ingredients)
+			ids_to_ingredients = addListToDict(id, ids_to_ingredients, ingredients)
 
 	return ids_to_cats, ids_to_ingredients
 
@@ -130,7 +138,7 @@ def doDownload():
 		for category, search_term in zip(categories, search_terms_list):
 			print search_term
 			search_terms_string = listToQueryString(attributes[attribute], [search_term])
-			max_results = 400 if attribute == "diet" else 250
+			max_results = 600 if attribute == "diet" else 400
 			results = getRecipesList(search_terms_string, max_results)
 
 			for result in results:
@@ -142,7 +150,7 @@ def doDownload():
 
 	
 
-	with open("outfile.json", "w+") as file:
+	with open("outfile_ingredients.json", "w+") as file:
 		json.dump(results_dictionary, file) 
 	
 	
@@ -151,7 +159,6 @@ def doDownload():
 
 
 def main():
-	doDownload()
 	ids_to_cats, ids_to_ingredients = idsToCategories()
 	print len(ids_to_ingredients)
 
