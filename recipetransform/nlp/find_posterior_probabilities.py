@@ -1,4 +1,4 @@
-import pymongo, nltk
+import pymongo, nltk, re
 import recipetransform.tools.database as tools
 import recipetransform.nlp.yummly as yum
 from recipetransform.nlp.parse_ingredient import parse_ingredient
@@ -59,7 +59,7 @@ def findWordCounts(freqdists):
 	return aggregate
 
 
-def findPosteriors(ids, download_function):
+def findPosteriors(ids, download_function, penalize_below_n=10):
 	"""
 	ids: dictionary of id -> list of cats
 	download_function: takes an id and returns a list of strings (representing ingredients)
@@ -91,16 +91,23 @@ def findPosteriors(ids, download_function):
 	for word in word_counts:
 		posteriors[word] = {}
 		for cat in freqdists:
+
 			if word not in freqdists[cat]:
 				freqdists[cat][word] = 0
+
+			# penalize ingredients with lower word_counts[word]
+			penalty = 1
+			if word_counts[word] < penalize_below_n:
+				penalty =  1 + penalize_below_n - word_counts[word]
+				print penalty
+
 			# p(recipe | word)
-			posteriors[word][cat] = float(freqdists[cat][word]) / float(word_counts[word])
+			posteriors[word][cat] = (float(freqdists[cat][word]) / float(word_counts[word])) / penalty
 
 	return posteriors
 
 
 def sanitize(lst):
-	import re
 
 	try:
 		lst = [re.search("[\w\s]+$", item).group(0) for item in lst]
@@ -110,16 +117,34 @@ def sanitize(lst):
 	return lst
 
 
+def splitCategories(posteriors):
+
+	diets = "Paleo", "[Vv]egetarian", "Pescetarian", "Vegan"
+	regex = "|".join(diets)
+
+	new_posteriors = {}
+	for word in posteriors:
+
+		new_posteriors[word] = {"diet":{},"cuisine":{}}
+
+		for cat in posteriors[word]:
+
+			if re.search(regex, cat) is None:
+				new_posteriors[word]["cuisine"][cat] = posteriors[word][cat]
+			else:
+				new_posteriors[word]["diet"][cat] = posteriors[word][cat]
+
+	return new_posteriors
+
+
 def main():
 
 
 	ids_to_cats, ids_to_ingredients = yum.idsToCategories()
-	print ids_to_ingredients
 	get_ingredients = lambda id : ids_to_ingredients[id]
 
 	posteriors = findPosteriors(ids_to_cats, get_ingredients)
-
-	print sanitize(["(   oz.) tomato paste"])
+	posteriors = splitCategories(posteriors)
 
 	db = tools.DBconnect()
 	db.posteriors.drop()
