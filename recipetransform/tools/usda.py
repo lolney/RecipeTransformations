@@ -3,9 +3,10 @@ import recipetransform.tools.database as tools
 from recipetransform.tools.yummly import addItemToDict
 
 
-def makeUSDARequst(endpoint, query):
+def makeUSDARequst(endpoint, query, auth_key=None):
 
-	auth_key = os.environ.get('USDAKey')
+	if auth_key is None:
+		auth_key = os.environ.get('USDAKey')
 	query["api_key"] = auth_key
 	query["format"] = "json"
 

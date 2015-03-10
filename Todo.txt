@@ -1,8 +1,6 @@
 TODO:
-- Ingredient classification (spices, protein, etc.)
-	- Food api? : http://ndb.nal.usda.gov/ndb/foods
-	- can search by food group: http://ndb.nal.usda.gov/ndb/doc/apilist/API-SEARCH.md
 - Transformation model (doing lookups in the ingredients database, figuring out what needs to get replaced (whether quantity gets changed, etc.), and reflecting changes in the front-end)
+
 
 In progress:
 - Ingredient parsing 
@@ -12,5 +10,8 @@ In progress:
 	- don’t actually have to do prep steps/cook steps?
 - Low-calorie, low-sodium lookups
 
+
 Done:
 - Getting recipe probabilities for ingredients (essentially)
+- Ingredient classification (spices, protein, etc.)
+	- Just waiting for API to start working
