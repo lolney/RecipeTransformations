@@ -6,6 +6,7 @@ TODO:
 
 In progress:
 - Ingredient parsing 
+	- something that might help: looking up items in db to see if name exists
 - Instruction parsing
  	- breaking up steps into ingredients, tools, methods, times
 	- don’t actually have to do prep steps/cook steps?
