@@ -1,6 +1,6 @@
 import pymongo, re, nltk, operator
 import recipetransform.tools.database as tools
-from recipetransform.nlp.find_posterior_probabilities import addDict
+from recipetransform.tools.dictionary_ops import *
 
 
 

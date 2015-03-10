@@ -1,6 +1,7 @@
 import urllib, urllib2, os, json
 from sets import Set
 import recipetransform.tools.database as tools
+from recipetransform.tools.dictionary_ops import *
 
 
 def getAuthInfo():
@@ -78,23 +79,6 @@ def insertResults(collection, results):
 	db = tools.DBconnect()
 	for result in results:
 		db[collection].insert(result)
-
-
-def addItemToDict(key, dict, value):
-
-	if key in dict:
-		dict[key].append(value)
-	else:
-		dict[key] = [value]
-	return dict
-
-def addListToDict(key, dict, value):
-
-	if key in dict:
-		pass
-	else:
-		dict[key] = value
-	return dict
 
 
 def getCats():

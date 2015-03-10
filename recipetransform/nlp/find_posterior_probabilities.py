@@ -2,32 +2,26 @@ import pymongo, nltk, re
 import recipetransform.tools.database as tools
 import recipetransform.nlp.yummly as yum
 from recipetransform.nlp.parse_ingredient import parse_ingredient
-
-
-def setDict(keys, dict, value):
-
-	for key in keys:
-		if key not in dict:
-			dict[key] = {}
-
-	return dict
-
-def addDict(key, dict, value):
-
-	if key in dict:
-		dict[key] = dict[key] + value
-	else:
-		dict[key] = value
-
-	return dict
+from recipetransform.nlp.transform_recipe import getFoodGroup
+from recipetransform.tools.dictionary_ops import *
 
 
 def encode(name, descriptor):
-	return name + "&" + descriptor
+	return name + "}" + descriptor
 
 
 def decode(word):
-	return name.split("&")
+	 items = word.split("}")
+
+	 if len(items) > 2:
+	 	print item
+	 	raise Exception()
+
+	 ingredient = {
+	 "name" : items[0],
+	 "descriptor" : items[1] if len(items) == 2 else ""
+	 }
+	 return ingredient
 
 
 def findWordCountForRecipe(cats, ingredients, freqdists):
@@ -136,6 +130,23 @@ def splitCategories(posteriors):
 
 	return new_posteriors
 
+"""
+{
+food_group:""
+ingredients:{"cuisine":{},"diet":{}}
+}
+"""
+
+def addFoodGroups(ingredients):
+
+	food_groups = {}
+	for encoded_ingredient in ingredients:
+		ingredient = decode(encoded_ingredient)
+		food_group = getFoodGroup(ingredient)
+		addItemToDict(food_group, food_groups, ingredient)
+
+	return [{"food_group":food_group, "ingredients":[ingredients[ingredients] for ingredient in food_groups[food_group]]} for food_group in food_groups]
+
 
 def main():
 
@@ -145,10 +156,12 @@ def main():
 
 	posteriors = findPosteriors(ids_to_cats, get_ingredients)
 	posteriors = splitCategories(posteriors)
+	food_groups = addFoodGroups(posteriors)
 
 	db = tools.DBconnect()
 	db.posteriors.drop()
-	db.posteriors.insert(posteriors)
+	for food_group in food_groups:
+		db.posteriors.insert(food_group)
 
 
 if __name__ == "__main__":

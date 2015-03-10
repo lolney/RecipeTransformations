@@ -1,6 +1,6 @@
 import urllib, urllib2, os, json
 import recipetransform.tools.database as tools
-from recipetransform.tools.yummly import addItemToDict
+from recipetransform.tools.dictionary_ops import *
 
 
 def makeUSDARequst(endpoint, query, auth_key=None):
