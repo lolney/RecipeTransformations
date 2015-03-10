@@ -1,5 +1,6 @@
 import urllib, urllib2, os, json
 import recipetransform.tools.database as tools
+from recipetransform.tools.yummly import addItemToDict
 
 
 def makeUSDARequst(endpoint, query):
@@ -23,15 +24,15 @@ def getFoodList(food_group, offset=0):
 	query = {
 	"fg" : food_group,
 	"max" : 1000,
-	"offset" : 0
+	"offset" : offset
 	}
 
 	result = makeUSDARequst(endpoint, query)
 
-	if(num_elem == 1000):
-		return list_of_foods + getFoodList(food_group, offset+1000)
+	if(len(result) == 1000):
+		return result + getFoodList(food_group, offset+1000)
 	else:
-		return list_of_foods
+		return result
 
 
 def downloadFoodGroups():
@@ -51,27 +52,46 @@ def getFoodGroups():
 		return json.load(file)
 
 
-def getFoodGroupLists():
-	
-	food_groups = getFoodGroups()
-	food_groups_dict = {}
+def reOrganize(food_groups):
 
-	for food_group in food_groups:
+	foods_to_foodgroups = {}
+	for fg in food_groups:
+		for food in food_groups[fg]:
+			foods_to_foodgroups = addItemToDict(food, foods_to_foodgroups, fg)
 
-		foods = getFoodList(food_group)
-		food_groups_dict[food_group] = foods
-
+	result = [{"food": food, "food_groups": foods_to_foodgroups[food]} for food in foods_to_foodgroups]
 
 	return result
 
 
+def getFoodGroupLists():
+	
+	food_groups = getFoodGroups()
+	#food_groups_dicts = []
+	food_groups_dict = {}
+
+	for food_group in food_groups:
+
+		try:
+			foods = getFoodList(food_group)
+		except:
+			print "Can't get results: ", food_group
+			continue
+		food_groups_dict[food_group] = foods
+		#food_groups_dicts.append({"food_group":food_group, "foods":[{"name": food} for food in foods]})
+
+	food_groups_dicts = reOrganize(food_groups_dict)
+	return food_groups_dicts
+
+
 def main():
 
-	food_groups_dict = getFoodGroupLists()
+	food_groups_dicts = getFoodGroupLists()
 
 	db = tools.DBconnect()
 	db.food_groups.drop()
-	db.food_groups.insert(food_groups_dict)
+	for group in food_groups_dicts:
+		db.food_groups.insert(group)
 
 
 if __name__ == "__main__":
