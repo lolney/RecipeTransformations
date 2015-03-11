@@ -173,3 +173,67 @@ parsedRecipe2 = {
 	"prep steps": ["Preheat oven to 325 degrees F (165 degrees C).", "Place the chicken breasts in a 9x13 inch baking dish.", " On top of each breast place a large spoonful of soup and a slice of cheese.", "Crush the stuffing mix and sprinkle on top of the cheese, then drizzle with the melted butter or margarine."],
 	"cook steps": ["Bake in the preheated oven for 45 minutes to 1 hour (don't overcook the chicken!)."]
 }
+
+parsedRecipe3 = {
+	"ingredients": [{
+			"name": "soy sauce",
+			"quantity": 3,
+			"measurement": "tablespoons",
+			"descriptor": "",
+			"preperation": "",
+			"prep-description": ""
+		},
+		{
+			"name": "wine",
+			"quantity": 2,
+			"measurement": "tablespoons",
+			"descriptor": "rice",
+			"preperation": "",
+			"prep-description": "" 
+		},
+		{
+			"name": "sugar",
+			"quantity": 1,
+			"measurement": "tablespoon",
+			"descriptor": "brown",
+			"preperation": "",
+			"prep-description": ""
+		},
+		{
+			"name": "cornstarch",
+			"quantity": 0.5,
+			"measurement": "teaspoon",
+			"descriptor": "",
+			"preperation": "",
+			"prep-description": ""
+		},
+		{
+			"name": "ginger root",
+			"quantity": 1,
+			"measurement": "tablespoon",
+			"descriptor": "fresh",
+			"preperation": "minced",
+			"prep-description": ""
+		}
+		{
+			"name": "steak",
+			"quantity": 1,
+			"measurement": "pound",
+			"descriptor": "beef round",
+			"preperation": "cut",
+			"prep-description": "into thin strips"
+		}
+		{
+			"name": "peas",
+			"quantity": 8,
+			"measurement": "ounces",
+			"descriptor": "snow",
+			"preperation": "",
+			"prep-description": ""
+		}],
+	"primary cooking method": "stir-fry",
+	"cooking methods": ["stir-fry, boil"],
+	"cooking tools": ["skillet", "small bowl"],
+	"prep steps": ["In a small bowl, combine the soy sauce, rice wine, brown sugar and cornstarch", "Set aside."],
+	"cook steps": ["Heat oil in a wok or skillet over medium high heat.", "Stir-fry ginger and garlic for 30 seconds.", "Add the steak and stir-fry for 2 minutes or until evenly browned.", "Add the snow peas and stir-fry for an additional 3 minutes.", " Add the soy sauce mixture, bring to a boil, stirring constantly.", " Lower heat and simmer until the sauce is thick and smooth.", "Serve immediately." ]
+}
