@@ -5,28 +5,37 @@ from recipetransform.tools.dictionary_ops import *
 
 
 def replaceIngredient(ingredients, index, new_ingredient):
+	"""
+	replace parsed ingredient (full ingredient dictionary) at index 
+	with new ingredient (ingredient dictionary with name, descriptor)
+	"""
 
 	return ingredients
 
+
+def updateInstruction(parsed_instructions, old_ingredient, new_ingredient):
+	"""
+	update instructions, replacing old_ingredient (full ingredient dictionary)
+	with new_ingredient (ingredient dictionary with name, descriptor)
+	"""
+	return parsed_instructions
 
 
 def getScore(ingredient, food_group, transform_category):
 	""" 
 	lookup encoded ingredient in db for given cuisine style
 	"""
+	score = None
+
 	makeQuery = lambda str : {"food_group": food_group, "ingredients":{"$elemMatch" : {"ingredient" : str}}}
-	results = runGauntlet(ingredient, makeQuery, "posteriors")
+	results = ingredientSearch(ingredient, makeQuery, "posteriors")
 
 	results = results.sort(transform_category, pymongo.DESCENDING)
 
-	return results[0]["ingredients"][0][transform_category]
+	if results.count() != 0:
+		score = results[0]["ingredients"][0][transform_category]
 
-
-
-def updateInstruction(parsed_instructions, old_ingredient, new_ingredient):
-
-	return parsed_instructions
-
+	return score
 
 
 def getReplacementCandidate(encoded_ingredient, score, food_group, transform_category, transform_type):
@@ -59,7 +68,7 @@ def reduceResults(results):
 
 
 
-def runGauntlet(ingredient, makeQuery, collection):
+def ingredientSearch(ingredient, makeQuery, collection):
 
 	db = tools.DBconnect()
 
@@ -90,7 +99,7 @@ def getFoodGroup(ingredient):
 	food_group = None
 
 	makeQuery = lambda name: {"food":name}
-	results = runGauntlet(ingredient, makeQuery, "food_groups")
+	results = ingredientSearch(ingredient, makeQuery, "food_groups")
 
 	if results.count() != 0:
 
@@ -101,9 +110,8 @@ def getFoodGroup(ingredient):
 	return food_group
 
 
+def transformDietCuisine(parsed_ingredients, parsed_instructions, transform_category):
 
-def transform_recipe(parsed_ingredients, parsed_instructions, transform_category, transform_type):
-	
 	for i, ingredient in parsed_ingredients:
 
 		encoded_ingredient = encode(ingredient)
@@ -118,7 +126,24 @@ def transform_recipe(parsed_ingredients, parsed_instructions, transform_category
 			parsed_ingredients = replaceIngredient(parsed_ingredients, i, candidate)
 			parsed_instructions = updateInstruction(parsed_instructions, ingredient, candidate)
 
+
 	return parsed_ingredients, parsed_instructions
+
+
+def transform_recipe(parsed_ingredients, parsed_instructions, transform_category, transform_type):
+	
+	if transform_type in ["cuisine","diet"]:
+		result = transformDietCuisine(parsed_ingredients, parsed_instructions, transform_category)
+
+	else:
+		t = "-".split(transform_type)
+		if t[1] in ["calorie","sodium"] and t[0] in ["low","high"]:
+			result = transformHealthy(parsed_ingredients, parsed_instructions, t[0], t[1])
+		else:
+			raise ValueError("unexpected transform_type")
+
+	return result
+
 
 
 def testFoodGroups():
