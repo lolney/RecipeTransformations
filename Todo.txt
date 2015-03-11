@@ -1,14 +1,13 @@
 TODO:
-- Transformation model (doing lookups in the ingredients database, figuring out what needs to get replaced (whether quantity gets changed, etc.), and reflecting changes in the front-end)
-
+- Front-end for recipe replacement
 
 In progress:
 - Ingredient parsing 
-	- something that might help: looking up items in db to see if name exists
 - Instruction parsing
- 	- breaking up steps into ingredients, tools, methods, times
-	- don’t actually have to do prep steps/cook steps?
 - Low-calorie, low-sodium lookups
+- Transformation model
+ 	- Just need to include healthy lookups
+
 
 
 Done:

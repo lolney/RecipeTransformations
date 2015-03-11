@@ -22,6 +22,7 @@ def getScore(ingredient, food_group, transform_category):
 	return results[0]["ingredients"][0][transform_category]
 
 
+
 def updateInstruction(parsed_instructions, old_ingredient, new_ingredient):
 
 	return parsed_instructions
@@ -31,7 +32,7 @@ def updateInstruction(parsed_instructions, old_ingredient, new_ingredient):
 def getReplacementCandidate(encoded_ingredient, score, food_group, transform_category, transform_type):
 	"""
 	Look in food_group 
-	Return the highest-scored x ingredient such that scoreOf(x) > score
+	Return the highest-scored ingredient x such that scoreOf(x) > score
 	"""
 
 	db = tools.DBconnect()
