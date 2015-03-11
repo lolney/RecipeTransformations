@@ -88,11 +88,11 @@ def getFoodGroupLists():
 def main():
 
 	food_groups_dicts = getFoodGroupLists()
-
+"""
 	db = tools.DBconnect()
 	db.food_groups.drop()
 	for group in food_groups_dicts:
-		db.food_groups.insert(group)
+		db.food_groups.insert(group)"""
 
 
 if __name__ == "__main__":

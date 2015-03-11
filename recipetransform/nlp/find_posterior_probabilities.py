@@ -119,7 +119,7 @@ def splitCategories(posteriors):
 	new_posteriors = {}
 	for word in posteriors:
 
-		new_posteriors[word] = {"diet":{},"cuisine":{}}
+		new_posteriors[word] = {"cuisine": {}, "diet": {}}
 
 		for cat in posteriors[word]:
 
@@ -133,19 +133,50 @@ def splitCategories(posteriors):
 """
 {
 food_group:""
-ingredients:{"cuisine":{},"diet":{}}
+ingredients:{"ingredient":name, posteriors: {"cuisine":{},"diet":{}}}
+}
+"""
+
+"""
+{
+food_group:""
+ingredients:{"ingredient":name, transform_type:diet, cats ... }
 }
 """
 
 def addFoodGroups(ingredients):
 
+	print "creating food groups dict"
 	food_groups = {}
 	for encoded_ingredient in ingredients:
 		ingredient = decode(encoded_ingredient)
 		food_group = getFoodGroup(ingredient)
-		addItemToDict(food_group, food_groups, ingredient)
+		print food_group
+		addItemToDict(food_group, food_groups, encoded_ingredient)
 
-	return [{"food_group":food_group, "ingredients":[ingredients[ingredients] for ingredient in food_groups[food_group]]} for food_group in food_groups]
+	print "creating mongodb representation"
+	output = []
+	for food_group in food_groups:
+		dict = {"food_group":food_group}
+
+		ingredients_mongo = []
+		for ingredient in food_groups[food_group]:
+
+
+			inner_dict1 = ingredients[ingredient]["diet"].copy()
+			inner_dict1.update({"ingredient":ingredient, "transform_type": "diet"})
+
+			inner_dict2 = ingredients[ingredient]["cuisine"].copy()
+			inner_dict2.update({"ingredient":ingredient, "transform_type": "cuisine"})
+
+			ingredients_mongo.append(inner_dict1)
+			ingredients_mongo.append(inner_dict2)
+
+
+		dict["ingredients"] = ingredients_mongo
+		output.append(dict)
+
+	return output
 
 
 def main():
