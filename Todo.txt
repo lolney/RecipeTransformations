@@ -8,8 +8,6 @@ In progress:
 - Transformation model
  	- Just need to include healthy lookups
 
-
-
 Done:
 - Getting recipe probabilities for ingredients (essentially)
 - Ingredient classification (spices, protein, etc.)

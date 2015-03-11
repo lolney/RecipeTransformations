@@ -58,7 +58,6 @@ def getReplacementCandidate(encoded_ingredient, score, food_group, transform_cat
 
 def reduceResults(results):
 
-
 	food_groups_counts = {};
 	for result in results:
 		for food_group in result:
