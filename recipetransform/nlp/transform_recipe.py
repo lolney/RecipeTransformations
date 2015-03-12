@@ -40,7 +40,7 @@ def getScore(ingredient, food_group, transform_category):
 	results = ingredientSearchAggregate(ingredient, makeQuery, "posteriors", pipe, 1)
 
 	if len(results) != 0:
-		print results[0]["ingredients"]["ingredient"]
+		#print results[0]["ingredients"]["ingredient"]
 		results = [result["ingredients"][transform_category] for result in results]
 		score = results[0]
 
@@ -63,7 +63,7 @@ def getReplacementCandidate(encoded_ingredient, score, food_group, transform_cat
 	results = db.posteriors.aggregate([match1, unwind, match2, sort])["result"]
 
 	if len(results) > 0:
-		print len(results), results[0]["ingredients"][transform_category]
+		#print len(results), results[0]["ingredients"][transform_category]
 		return results[0]["ingredients"]["ingredient"]
 	else:
 		return encoded_ingredient
@@ -169,8 +169,8 @@ def getFoodGroup(ingredient):
 
 	results = ingredientSearchAggregate(ingredient, makeQuery, "food_groups", pipe, 0)
 	if len(results) > 0:
-		food_group = results[0]['_id']
 		print results
+		food_group = results[0]['_id']
 
 
 	return food_group
@@ -193,7 +193,7 @@ def transformDietCuisine(parsed_ingredients, parsed_instructions, transform_cate
 			parsed_instructions = updateInstruction(parsed_instructions, ingredient, candidate)
 
 
-	return parsed_ingredients, parsed_instructions
+	return {"ingredients":parsed_ingredients, "instructions":parsed_instructions}
 
 
 def transform_recipe(parsed_ingredients, parsed_instructions, transform_category, transform_type):
@@ -250,6 +250,18 @@ def testFoodGroups():
 	{
 	"name": "spaghetti",
 	"descriptor": ""
+	},
+	{
+	"name":"oregano",
+	"descriptor": ""
+	},
+	{
+	"name":"miso",
+	"descriptor": ""
+	},
+	{
+	"name":"meat",
+	"descriptor": ""
 	}]
 	
 	for ingredient in ingredients:
@@ -258,25 +270,28 @@ def testFoodGroups():
 
 def testIdReplacements():
 
-	print getReplacementCandidate("water", 0, "Beef Products", "Pescetarian")
-	print getReplacementCandidate("water", 0, "Baked Products", "Pescetarian")
-	print getReplacementCandidate("fava beans", .1, "Baked Products", "Pescetarian")
-	print getReplacementCandidate("fava beans", .2, "Baked Products", "Pescetarian")
+	print getReplacementCandidate("water", 0, "Beverages", "Pescetarian")
+	print getReplacementCandidate("water", 0, "Beverages", "Pescetarian")
+	print getReplacementCandidate("fava beans", .1, "Legumes and Legume Products", "Pescetarian")
+	print getReplacementCandidate("fava beans", .2, "Legumes and Legume Products", "Pescetarian")
 
-	print getReplacementCandidate("fava beans", .2, "Baked Products", "Italian")
-	print getReplacementCandidate("fava beans", .2, "Baked Products", "Japanese")
-	print getReplacementCandidate("fava beans", .2, "Baked Products", "Chinese")
-	print getReplacementCandidate("fava beans", .2, "Baked Products", "American")
+	print getReplacementCandidate("fava beans", 0, "Legumes and Legume Products", "Italian")
+	print getReplacementCandidate("fava beans", 0, "Legumes and Legume Products", "Japanese")
+	print getReplacementCandidate("fava beans", 0, "Legumes and Legume Products", "Chinese")
+	print getReplacementCandidate("fava beans", 0, "Legumes and Legume Products", "American")
+	print getReplacementCandidate("fava beans", 0, "Legumes and Legume Products", "Mexican")
 
-	print getScore({"name":"water","descriptor":""}, "Beef Products", "Pescetarian")
-	print getScore({"name":"spaghetti","descriptor":""}, "Baked Products", "Italian")
-	print getScore({"name":"parmesan cheese","descriptor":""}, "Baked Products", "Pescetarian")
+	print getScore({"name":"water","descriptor":""}, "Beverages", "Pescetarian")
+	print getScore({"name":"spaghetti","descriptor":""}, "Meals, Entrees, and Side Dishes", "Italian")
+	print getScore({"name":"parmesan cheese","descriptor":""}, "Dairy and Egg Products", "Pescetarian")
 	print getScore({"name":"cheese","descriptor":""}, "Baked Products", "Pescetarian")
 
 
 def main():
-	
+
+	testIdReplacements()
 	testFoodGroups()
+
 	
 
 if __name__ == "__main__":

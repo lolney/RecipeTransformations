@@ -1,5 +1,5 @@
 import cherrypy
-import urllib, ast
+import urllib, ast, json
 import recipetransform.nlp.parsing as parsing
 import recipetransform.tools.templates as templates
 import recipetransform.web.allrecipes as allrecipes
@@ -9,10 +9,6 @@ import recipetransform.tools.database as tools
 
 def getRecipe(kwargs):
 
-	ingredients = [];
-	for item in kwargs["ingredients"]: # Cherrypy turns the dictionaries into strings
-		ingredients.append(ast.literal_eval(item))
-
 	# Need to wrap in list, if necessary
 	cook_steps = kwargs["cook steps"]
 	cook_steps = cook_steps if type(cook_steps) == type([]) else [cook_steps]
@@ -20,7 +16,7 @@ def getRecipe(kwargs):
 	prep_steps = kwargs["prep steps"]
 	prep_steps = prep_steps if type(prep_steps) == type([]) else [prep_steps]
 
-	return ingredients, cook_steps, prep_steps
+	return cook_steps, prep_steps
 
 
 def getTransformCategories():
@@ -66,35 +62,30 @@ class Root(object):
 			transform_categories=getTransformCategories())
 
 	@cherrypy.expose
-	def parsed_recipe(self, **kwargs):
-
-		ingredients, cook_steps, prep_steps = getRecipe(kwargs)
+	def search(self, q=""):
+		recipe_dict = parsing.parseHtml(q)
+		cook_steps, prep_steps = getRecipe(recipe_dict)
 
 		mytemplate = templates.lookup('recipe.html')
-		return mytemplate.render(title=kwargs["name"],
-			ingredients=ingredients,
+		return mytemplate.render(title=recipe_dict["name"],
+			ingredients=recipe_dict["ingredients"],
 			prep_steps=prep_steps,
 			cook_steps=cook_steps,
 			transform_categories=getTransformCategories())
-
-	@cherrypy.expose
-	def search(self, q=""):
-		recipe_dict = parsing.parseHtml(q)
-		qstring = urllib.urlencode(recipe_dict, doseq=True)
-		print qstring
-		raise cherrypy.HTTPRedirect("/parsed_recipe?" + qstring)
 
 
 	@cherrypy.expose
 	def replace(self, **kwargs):
 
-		ingredients, cook_steps, prep_steps = getRecipe(kwargs)
-		cat = kwargs[transform_category]
-		typ = kwargs[transform_type]
-		
-		ingredients, instructions = transform_recipe(ingredients, cook_steps+prep_steps, cat, typ)
+		cat = kwargs["transform_category"]
+		typ = kwargs["transform_type"]
+		"""
+		cook_steps, prep_steps = getRecipe(kwargs)
+		transformed_recipe = transform_recipe(ingredients, cook_steps+prep_steps, cat, typ)
+		"""
+		transformed_recipe = {"instructions":cat, "ingredients": typ}
+		return json.dumps(transformed_recipe)
 
-		raise cherrypy.HTTPRedirect("/parsed_recipe?" + "")
 
 
 

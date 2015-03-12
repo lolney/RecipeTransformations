@@ -1,5 +1,12 @@
 TODO:
+- Ingredient replacement (in instructions and ingredients)
 - Front-end for recipe replacement
+	- Store parsed recipe as javascript object
+	- update via ajax
+- More work on instruction
+	- May want to consider putting various meat categories under a single category, removing meals and entrees
+	- May want to include searching in multiple categories if a conclusive result not found
+	- Will definitely want to include another category based on nutritional content (since diets exclude whole food groups)
 
 In progress:
 - Ingredient parsing 
@@ -10,5 +17,5 @@ In progress:
 
 Done:
 - Getting recipe probabilities for ingredients (essentially)
-- Ingredient classification (spices, protein, etc.)
-	- Just waiting for API to start working
+- Ingredient classification (USDA part)
+	

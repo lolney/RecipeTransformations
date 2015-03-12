@@ -17,7 +17,7 @@
                 
                 <ul class="dropdown-menu" role="menu" aria-labelledby="menu1">
                 % for category in transform["Categories"]:
-                    <li role="presentation"><a role="menuitem" tabindex="-1" href="#">${category}</a></li>
+                    <li role="presentation" class="transform-cat"><a role="menuitem" tabindex="-1" href="#">${category}</a></li>
                 % endfor
                 </ul>
             </div>
@@ -28,7 +28,7 @@
             <h3> Ingredients </h3>
                 <ul>
                 % for ingredient in ingredients:
-                  <li>${ingredient["q"] + " " + ingredient["n"]}</li>
+                  <li >${ingredient["q"] + " " + ingredient["n"]}</li>
                 % endfor
                 </ul>
         </div>
