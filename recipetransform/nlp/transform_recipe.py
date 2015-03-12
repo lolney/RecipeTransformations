@@ -1,4 +1,5 @@
 import pymongo, re, nltk, operator
+from bson.son import SON
 import recipetransform.tools.database as tools
 from recipetransform.tools.dictionary_ops import *
 
@@ -27,18 +28,26 @@ def getScore(ingredient, food_group, transform_category):
 	"""
 	score = None
 
-	makeQuery = lambda str : {"food_group": food_group, "ingredients":{"$elemMatch" : {"ingredient" : str}}}
-	results = ingredientSearch(ingredient, makeQuery, "posteriors")
+	makeQuery = lambda str : {"food_group": food_group, "ingredients.ingredient" : str}
 
-	results = results.sort(transform_category, pymongo.DESCENDING)
+	pipe = [
+	{"$unwind": "$ingredients"},
+	{},
+	{"$match": {"ingredients." + transform_category: {"$gte":0}}},
+	{"$sort": SON({"ingredients." + transform_category: -1})}
+	]
 
-	if results.count() != 0:
-		score = results[0]["ingredients"][0][transform_category]
+	results = ingredientSearchAggregate(ingredient, makeQuery, "posteriors", pipe, 1)
+
+	if len(results) != 0:
+		print results[0]["ingredients"]["ingredient"]
+		results = [result["ingredients"][transform_category] for result in results]
+		score = results[0]
 
 	return score
 
 
-def getReplacementCandidate(encoded_ingredient, score, food_group, transform_category, transform_type):
+def getReplacementCandidate(encoded_ingredient, score, food_group, transform_category):
 	"""
 	Look in food_group 
 	Return the highest-scored ingredient x such that scoreOf(x) > score
@@ -46,13 +55,18 @@ def getReplacementCandidate(encoded_ingredient, score, food_group, transform_cat
 
 	db = tools.DBconnect()
 
-	query = {transform_category : {"$gt" : score}}
-	query_outside = {"food_group":food_group, "ingredients":{"$elemMatch" : query}}
+	match1 = {"$match": {"food_group": food_group}}
+	unwind = {"$unwind": "$ingredients"}
+	match2 = {"$match": {"ingredients." + transform_category: {"$gte":score}}}
+	sort = {"$sort": SON({"ingredients." + transform_category: -1})}	
 
-	results = db.posteriors.find(query_outside).sort(transform_category, pymongo.DESCENDING)
+	results = db.posteriors.aggregate([match1, unwind, match2, sort])["result"]
 
-
-	return results[0]["ingredients"][0]["ingredient"]
+	if len(results) > 0:
+		print len(results), results[0]["ingredients"][transform_category]
+		return results[0]["ingredients"]["ingredient"]
+	else:
+		return encoded_ingredient
 
 
 
@@ -92,18 +106,71 @@ def ingredientSearch(ingredient, makeQuery, collection):
 	return results
 
 
+def doAggregation(pipe, query, collection, query_index):
+
+	db = tools.DBconnect()
+
+	pipeline = list(pipe)
+	pipeline[query_index] = {"$match":query}
+
+	return db[collection].aggregate(pipeline)["result"]
+
+
+def ingredientSearchAggregate(ingredient, makeQuery, collection, pipe, query_index):
+
+	descriptor_strings = nltk.word_tokenize(ingredient["descriptor"])
+	name = re.compile(ingredient["name"], re.IGNORECASE)
+	name_front = re.compile("^" + ingredient["name"] + ".*", re.IGNORECASE)
+
+	# try name and descriptors
+	q = makeQuery(name)
+	if len(descriptor_strings) == 0:
+		query = makeQuery(ingredient["name"])
+	else:
+		descriptors = [re.compile(descriptor, re.IGNORECASE) for descriptor in descriptor_strings]
+		query = {"$and": ([q] + [makeQuery(descriptor) for descriptor in descriptors])}
+	results = doAggregation(pipe, query, collection, query_index)
+	
+	# try just name (first the front of the string)
+	query = makeQuery(name_front)
+	if len(results) == 0:
+		results = doAggregation(pipe, query, collection, query_index)
+
+	# then in the remainder
+	if len(results) == 0:
+		results = doAggregation(pipe, q, collection, query_index)
+
+	return results
+
 
 def getFoodGroup(ingredient):
+	"""
+	Depending on quality of USDA data, may need to reconsider how this is chosen
+	"Beef products" and "Baked products" seem to include everything
+	"""
 
 	food_group = None
 
 	makeQuery = lambda name: {"food":name}
-	results = ingredientSearch(ingredient, makeQuery, "food_groups")
 
+	"""
+	results = ingredientSearch(ingredient, makeQuery, "food_groups")
 	if results.count() != 0:
 
 		items = [item["food_groups"] for item in results]
-		food_group = reduceResults(items)
+		food_group = reduceResults(items) """
+
+	pipe = [
+	{},
+	{"$unwind": "$food_groups"},
+	{"$group": {"_id": "$food_groups", "count": {"$sum": 1}}},
+	{"$sort": SON([("count", -1), ("_id", -1)])}
+	]
+
+	results = ingredientSearchAggregate(ingredient, makeQuery, "food_groups", pipe, 0)
+	if len(results) > 0:
+		food_group = results[0]['_id']
+		print results
 
 
 	return food_group
@@ -159,16 +226,57 @@ def testFoodGroups():
 	{
 	"name": "beef",
 	"descriptor": ""
-	}
-	]
+	},
+	{
+	"name": "beans",
+	"descriptor": "fava"
+	},
+	{
+	"name": "beans",
+	"descriptor": ""
+	},
+	{
+	"name": "parmesan cheese",
+	"descriptor": ""
+	},
+	{
+	"name": "cheese",
+	"descriptor": ""
+	},
+	{
+	"name": "cheese",
+	"descriptor": "parmesan"
+	},
+	{
+	"name": "spaghetti",
+	"descriptor": ""
+	}]
 	
-	print [getFoodGroup(ingredient) for ingredient in ingredients]
+	for ingredient in ingredients:
+		print (ingredient["name"], getFoodGroup(ingredient))
+
+
+def testIdReplacements():
+
+	print getReplacementCandidate("water", 0, "Beef Products", "Pescetarian")
+	print getReplacementCandidate("water", 0, "Baked Products", "Pescetarian")
+	print getReplacementCandidate("fava beans", .1, "Baked Products", "Pescetarian")
+	print getReplacementCandidate("fava beans", .2, "Baked Products", "Pescetarian")
+
+	print getReplacementCandidate("fava beans", .2, "Baked Products", "Italian")
+	print getReplacementCandidate("fava beans", .2, "Baked Products", "Japanese")
+	print getReplacementCandidate("fava beans", .2, "Baked Products", "Chinese")
+	print getReplacementCandidate("fava beans", .2, "Baked Products", "American")
+
+	print getScore({"name":"water","descriptor":""}, "Beef Products", "Pescetarian")
+	print getScore({"name":"spaghetti","descriptor":""}, "Baked Products", "Italian")
+	print getScore({"name":"parmesan cheese","descriptor":""}, "Baked Products", "Pescetarian")
+	print getScore({"name":"cheese","descriptor":""}, "Baked Products", "Pescetarian")
 
 
 def main():
 	
-	print getReplacementCandidate("water", 0, "Beef Products", "Pescetarian", "diet")
-	print getScore({"name":"water","descriptor":""}, "Beef Products", "Pescetarian")
+	testFoodGroups()
 	
 
 if __name__ == "__main__":

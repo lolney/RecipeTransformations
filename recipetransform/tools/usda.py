@@ -1,5 +1,7 @@
 import urllib, urllib2, os, json
+
 import recipetransform.tools.database as tools
+from recipetransform.nlp.parsing import parse_raw
 from recipetransform.tools.dictionary_ops import *
 
 
@@ -20,6 +22,9 @@ def makeUSDARequst(endpoint, query, auth_key=None):
 
 
 def getFoodList(food_group, offset=0):
+
+	if food_group in ["Beef Products","Baked Products"]:
+		raise Exception()
 	
 	endpoint = "search/?"
 	query = {
@@ -65,6 +70,37 @@ def reOrganize(food_groups):
 	return result
 
 
+def scrapeUSDASite(food_group, offset=0):
+
+	"""
+	Have to resort to this occasionally, when the API isn't working
+	"""
+
+	query = {
+	"max": 1000,
+	"fgcd":  food_group,
+	"offset": offset
+	}
+
+	url = "http://ndb.nal.usda.gov/ndb/foods?" + urllib.urlencode(query)
+	html = parse_raw(url)
+
+	content = html.body.find('div', attrs={'class':'list-left'})
+	table = content.find('tbody')
+	rows = table.findAll('tr')
+
+	ingredients = []
+	for row in rows:
+		cols = row.findAll('td')
+		name = cols[1].text
+		ingredients.append(name)
+
+	if len(ingredients) == 1000:
+		return ingredients + scrapeUSDASite(food_group, offset+1000)
+	else:
+		return ingredients
+
+
 def getFoodGroupLists():
 	
 	food_groups = getFoodGroups()
@@ -77,7 +113,8 @@ def getFoodGroupLists():
 			foods = getFoodList(food_group)
 		except:
 			print "Can't get results: ", food_group
-			continue
+			foods = scrapeUSDASite(food_group)
+
 		food_groups_dict[food_group] = foods
 		#food_groups_dicts.append({"food_group":food_group, "foods":[{"name": food} for food in foods]})
 
@@ -88,11 +125,11 @@ def getFoodGroupLists():
 def main():
 
 	food_groups_dicts = getFoodGroupLists()
-"""
+
 	db = tools.DBconnect()
 	db.food_groups.drop()
 	for group in food_groups_dicts:
-		db.food_groups.insert(group)"""
+		db.food_groups.insert(group)
 
 
 if __name__ == "__main__":
