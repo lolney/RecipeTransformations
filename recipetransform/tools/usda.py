@@ -127,7 +127,6 @@ def loadNutrients(infile):
 	with open(infile, "r") as fp:
 		
 		db = tools.DBconnect()
-		db.food_groups.drop()
 		ingredients = json.load(jp)
 
 		db.nutrients.drop()
