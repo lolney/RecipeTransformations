@@ -25,6 +25,22 @@ def updateInstruction(parsed_instructions, old_ingredient, new_ingredient):
 	return parsed_instructions
 
 
+def tryExclusionTable(food_group, transform_category):
+
+	db = tools.DBconnect()
+	query = {"diet": transform_category}
+
+	result = db.exclusion_table.find_one(query)
+
+	print transform_category
+	if result is not None:
+		print result
+		if food_group in result["excluded"]:
+			return "Legumes and Legume Products"
+
+	return None
+
+
 def getScore(ingredient, food_group, transform_category):
 	""" 
 	lookup encoded ingredient in db for given cuisine style
@@ -58,7 +74,12 @@ def getReplacementCandidate(ingredient, score, food_group, transform_category, i
 
 	db = tools.DBconnect()
 
-	match1 = {"$match": {"food_group": food_group}}
+	addl_group = tryExclusionTable(food_group, transform_category)
+	food_groups = [food_group]
+	if addl_group is not None:
+		food_groups.append(addl_group)
+
+	match1 = {"$match": {"food_group": {"$in": food_groups}}}
 	unwind = {"$unwind": "$ingredients"}
 	match2 = {"$match": {"ingredients." + transform_category: {"$gte":score}}}
 	sort = {"$sort": SON({"ingredients." + transform_category: -1})}	
@@ -211,7 +232,7 @@ def transform_recipe(parsed_ingredients, parsed_instructions, transform_category
 
 	else:
 		if transform_type in ["calories","sodium"] and transform_category in ["low","high"]:
-			result = transformHealthy(parsed_ingredients, parsed_instructions, transform_category, transform_type)
+			result = transformHealthy(parsed_ingredients, transform_category, transform_type)
 		else:
 			raise ValueError("unexpected transform_type")
 
