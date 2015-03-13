@@ -122,7 +122,20 @@ def getFoodGroupLists():
 	return food_groups_dicts
 
 
-def main():
+def loadNutrients(infile):
+
+	with open(infile, "r") as fp:
+		
+		db = tools.DBconnect()
+		db.food_groups.drop()
+		ingredients = json.load(jp)
+
+		db.nutrients.drop()
+		for ingredient in ingredients:
+			db.nutrients.insert(group)
+
+
+def loadFoodGroups():
 
 	food_groups_dicts = getFoodGroupLists()
 
@@ -130,6 +143,11 @@ def main():
 	db.food_groups.drop()
 	for group in food_groups_dicts:
 		db.food_groups.insert(group)
+
+
+def main():
+
+	loadNutrients();
 
 
 if __name__ == "__main__":

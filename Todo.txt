@@ -1,16 +1,19 @@
 TODO:
 - Ingredient replacement (in instructions and ingredients)
-- Front-end for recipe replacement
-	- Store parsed recipe as javascript object
-	- update via ajax
 - More work on instruction
 	- May want to consider putting various meat categories under a single category, removing meals and entrees
 	- May want to include searching in multiple categories if a conclusive result not found
 	- Will definitely want to include another category based on nutritional content (since diets exclude whole food groups)
+
+	- Might be easier just to include food-group -> food-group lookup table for diets
 - Subtle improvements:
+	- Try searching in the name of the food group first
 	- Try to replace descriptor first?
-	- No duplicates - if multiple ingredients in a category, get the second, third best
 	- Changing the name of the recipe?
+- UI improvements?
+	- show old ingredients?
+	- add a footer
+- Units from USDA site
 
 In progress:
 - Ingredient parsing 

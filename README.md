@@ -24,10 +24,10 @@ To start the Cherrypy webserver:
 
 With MongoDB installed, run the following command:
 ```
-mongorestore --db recipes recipes_dump/recipes
+mongorestore --db recipes data/recipes
 ```
 
 The database dump is produced as follows:
 ```
-mongodump  --db recipes --out recipes_dump
+mongodump  --db recipes --out data
 ```

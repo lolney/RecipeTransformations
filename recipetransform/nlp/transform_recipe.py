@@ -50,7 +50,7 @@ def getScore(ingredient, food_group, transform_category):
 	return score
 
 
-def getReplacementCandidate(ingredient, score, food_group, transform_category):
+def getReplacementCandidate(ingredient, score, food_group, transform_category, index=0):
 	"""
 	Look in food_group 
 	Return the highest-scored ingredient x such that scoreOf(x) > score
@@ -65,9 +65,9 @@ def getReplacementCandidate(ingredient, score, food_group, transform_category):
 
 	results = db.posteriors.aggregate([match1, unwind, match2, sort])["result"]
 
-	if len(results) > 0:
+	if len(results) > index:
 		#print len(results), results[0]["ingredients"][transform_category]
-		return decode(results[0]["ingredients"]["ingredient"])
+		return decode(results[index]["ingredients"]["ingredient"])
 	else:
 		return ingredient
 
@@ -134,10 +134,12 @@ def ingredientSearchAggregate(ingredient, makeQuery, collection, pipe, query_ind
 		query = {"$and": ([q] + [makeQuery(descriptor) for descriptor in descriptors])}
 	results = doAggregation(pipe, query, collection, query_index)
 	
+	"""
 	# try just name (first the front of the string)
 	query = makeQuery(name_front)
 	if len(results) == 0:
 		results = doAggregation(pipe, query, collection, query_index)
+	"""
 
 	# then in the remainder
 	if len(results) == 0:
@@ -156,12 +158,6 @@ def getFoodGroup(ingredient):
 
 	makeQuery = lambda name: {"food":name}
 
-	"""
-	results = ingredientSearch(ingredient, makeQuery, "food_groups")
-	if results.count() != 0:
-
-		items = [item["food_groups"] for item in results]
-		food_group = reduceResults(items) """
 
 	pipe = [
 	{},
@@ -181,6 +177,7 @@ def getFoodGroup(ingredient):
 
 def transformDietCuisine(parsed_ingredients, parsed_instructions, transform_category):
 
+	replacement_counter = {}
 	for i, ingredient in enumerate(parsed_ingredients):
 
 		print ingredient
@@ -191,7 +188,13 @@ def transformDietCuisine(parsed_ingredients, parsed_instructions, transform_cate
 		if score is None: # couldn't find ingredient in db, so don't try to replace
 			continue
 
-		candidate = getReplacementCandidate(ingredient, score, food_group, transform_category)
+		try:
+			index = replacement_counter[food_group]
+		except:
+			index = 0
+
+		candidate = getReplacementCandidate(ingredient, score, food_group, transform_category, index)
+		replacement_counter = addDict(food_group, replacement_counter, 1)
 
 		if candidate is not None:
 			parsed_ingredients = replaceIngredient(parsed_ingredients, i, candidate)
@@ -266,6 +269,14 @@ def testFoodGroups():
 	},
 	{
 	"name":"meat",
+	"descriptor": ""
+	},
+	{
+	"name":"soy sauce",
+	"descriptor": ""
+	},
+	{
+	"name":"bacon",
 	"descriptor": ""
 	}]
 	
