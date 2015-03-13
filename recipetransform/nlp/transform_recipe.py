@@ -1,6 +1,7 @@
 import pymongo, re, nltk, operator
 from bson.son import SON
 import recipetransform.tools.database as tools
+from recipetransform.tools.database import encode, decode
 from recipetransform.tools.dictionary_ops import *
 
 
@@ -10,6 +11,8 @@ def replaceIngredient(ingredients, index, new_ingredient):
 	replace parsed ingredient (full ingredient dictionary) at index 
 	with new ingredient (ingredient dictionary with name, descriptor)
 	"""
+
+	ingredients[index]["name"] = new_ingredient["name"]
 
 	return ingredients
 
@@ -47,7 +50,7 @@ def getScore(ingredient, food_group, transform_category):
 	return score
 
 
-def getReplacementCandidate(encoded_ingredient, score, food_group, transform_category):
+def getReplacementCandidate(ingredient, score, food_group, transform_category):
 	"""
 	Look in food_group 
 	Return the highest-scored ingredient x such that scoreOf(x) > score
@@ -64,9 +67,9 @@ def getReplacementCandidate(encoded_ingredient, score, food_group, transform_cat
 
 	if len(results) > 0:
 		#print len(results), results[0]["ingredients"][transform_category]
-		return results[0]["ingredients"]["ingredient"]
+		return decode(results[0]["ingredients"]["ingredient"])
 	else:
-		return encoded_ingredient
+		return ingredient
 
 
 
@@ -178,22 +181,24 @@ def getFoodGroup(ingredient):
 
 def transformDietCuisine(parsed_ingredients, parsed_instructions, transform_category):
 
-	for i, ingredient in parsed_ingredients:
+	for i, ingredient in enumerate(parsed_ingredients):
 
-		encoded_ingredient = encode(ingredient)
-		score = getScore(ingredient, transform_category)
+		print ingredient
+		ingredient["descriptor"] = ""
+		food_group = getFoodGroup(ingredient)
+		score = getScore(ingredient, food_group, transform_category)
 
 		if score is None: # couldn't find ingredient in db, so don't try to replace
 			continue
 
-		candidate = getReplacementCandidate(score, food_group, transform_category, transform_type)
+		candidate = getReplacementCandidate(ingredient, score, food_group, transform_category)
 
 		if candidate is not None:
 			parsed_ingredients = replaceIngredient(parsed_ingredients, i, candidate)
 			parsed_instructions = updateInstruction(parsed_instructions, ingredient, candidate)
 
 
-	return {"ingredients":parsed_ingredients, "instructions":parsed_instructions}
+	return parsed_ingredients, parsed_instructions
 
 
 def transform_recipe(parsed_ingredients, parsed_instructions, transform_category, transform_type):
@@ -207,6 +212,7 @@ def transform_recipe(parsed_ingredients, parsed_instructions, transform_category
 		else:
 			raise ValueError("unexpected transform_type")
 
+	print result
 	return result
 
 

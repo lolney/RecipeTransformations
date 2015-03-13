@@ -22,7 +22,7 @@ def getIngredients(html):
 		try:
 			ingredient_amount = ingredient.find('span', attrs={'class':'ingredient-amount'}).text
 			ingredient_name = ingredient.find('span', attrs={'class':'ingredient-name'}).text
-			parsed_ingred = {"q": ingredient_amount, "n": ingredient_name}
+			parsed_ingred = {"quantity": ingredient_amount, "name": ingredient_name}
 			#parsed_ingred = parse_ingredient(ingredient_amount, ingredient_name)
 			ingredients.append(parsed_ingred)
 		except AttributeError: # expected, because some table elements contain no ingredients

@@ -35,7 +35,7 @@
             <h3> Ingredients </h3>
                 <ul>
                 % for ingredient in ingredients:
-                  <li >${ingredient["q"] + " " + ingredient["n"]}</li>
+                  <li >${ingredient["quantity"] + " " + ingredient["name"]}</li>
                 % endfor
                 </ul>
         </div>

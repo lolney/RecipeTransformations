@@ -7,6 +7,10 @@ TODO:
 	- May want to consider putting various meat categories under a single category, removing meals and entrees
 	- May want to include searching in multiple categories if a conclusive result not found
 	- Will definitely want to include another category based on nutritional content (since diets exclude whole food groups)
+- Subtle improvements:
+	- Try to replace descriptor first?
+	- No duplicates - if multiple ingredients in a category, get the second, third best
+	- Changing the name of the recipe?
 
 In progress:
 - Ingredient parsing 
