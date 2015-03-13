@@ -34,21 +34,21 @@ def makeUSDARequstNutrient(endpoint, query, fg2, auth_key=None):
     url2 = 'http://api.nal.usda.gov/usda/ndb/' +endpoint + qstring2
     result_string2 = urllib.urlopen(url2).read();
     
-    resultSodCal = json.loads(result_string)['report']['foods']
-    resultSodCal2 = json.loads(result_string2)['report']['foods']
-    print len(resultSodCal)
-    print len(resultSodCal2)
-    print
-    resultSodCal = resultSodCal+ resultSodCal2;
-    print len(resultSodCal)
+    results = json.loads(result_string)['report']['foods']
+    results2 = json.loads(result_string2)['report']['foods']
+    #print len(resultSodCal)
+    #print len(resultSodCal2)
+    #print
+    results = results+ results2;
+    #print len(resultSodCal)
         
-    return resultSodCal
+    return results
 
 def getFoodList(offset=0):
     endpoint = "nutrients/?"
     query ={
         'fg': ['0100','0200','0400','0500', '0600', '0700','0900','1000','1100', '1200'],
-        'nutrients': ['208', '307'],
+        'nutrients': ['208', '307', '205', '269','203','291'],
         'max': '1500',
         'offset': str(offset)
     }
@@ -65,26 +65,27 @@ def getFoodList(offset=0):
 def buildDB():
     #results = makeUSDARequstNutrient('nutrients/?', query, api_key)
     results = getFoodList()
-    caloriesGroup = []
-    sodiumGroup = []
+    nutrients = []
     
     for item in results:
+        d = {}
+        d['name'] = item['name']
         for nut in item['nutrients']:
-            if nut['nutrient'] == 'Energy':
-                d = {}
-                d['name'] = item['name']
-                d['calories'] = nut['value']
-                caloriesGroup.append(d)
-            else:
-                d = {}
-                d['name'] = item['name']
-                d['sodium'] = nut['value']
-                sodiumGroup.append(d)
+            d[nut['nutrient']] = nut['value']
+        
+        nutrients.append(d)
 
-    print len(caloriesGroup)
+    print len(nutrients)
 
-    return [caloriesGroup, sodiumGroup]
+    return nutrients
 
+def main():
+    nutList = buildDB()
+    with open("nutrients.json", "w+") as file:
+            json.dump(nutList, file)
+
+if __name__ == "__main__":
+    main()
 '''
 calories = [{
     'name': 'cheddar cheese',
