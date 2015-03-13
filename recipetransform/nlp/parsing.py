@@ -51,7 +51,7 @@ def getName(html):
 
 
 def parseHtml(url):
-
+	
 	parsed_html = parse_raw(url)
 
 	name = getName(parsed_html)
@@ -60,5 +60,4 @@ def parseHtml(url):
 
 	return {"name" : name,
 	 "ingredients" : ingredients,
-	 "prep steps" : instructions[0],
-	 "cook steps" : instructions[1:]}
+	 "instructions" : instructions}

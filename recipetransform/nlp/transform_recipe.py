@@ -202,9 +202,8 @@ def transform_recipe(parsed_ingredients, parsed_instructions, transform_category
 		result = transformDietCuisine(parsed_ingredients, parsed_instructions, transform_category)
 
 	else:
-		t = "-".split(transform_type)
-		if t[1] in ["calorie","sodium"] and t[0] in ["low","high"]:
-			result = transformHealthy(parsed_ingredients, parsed_instructions, t[0], t[1])
+		if transform_type in ["calories","sodium"] and transform_category in ["low","high"]:
+			result = transformHealthy(parsed_ingredients, parsed_instructions, transform_category, transform_type)
 		else:
 			raise ValueError("unexpected transform_type")
 

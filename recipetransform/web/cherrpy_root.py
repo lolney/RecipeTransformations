@@ -7,16 +7,22 @@ from recipetransform.nlp.transform_recipe import transform_recipe
 import recipetransform.tools.database as tools
 
 
-def getRecipe(kwargs):
+def getRecipe(url):
+
+	db = tools.DBconnect()
+	recipe_dict = db.recipe_cache.find_one({"url" : url})
+
+	if recipe_dict is None:
+		recipe_dict = parsing.parseHtml(url)
+		recipe_dict["url"] = url
+		db.recipe_cache.insert(recipe_dict)
 
 	# Need to wrap in list, if necessary
-	cook_steps = kwargs["cook steps"]
-	cook_steps = cook_steps if type(cook_steps) == type([]) else [cook_steps]
+	instructions = recipe_dict["instructions"]
+	instructions = instructions if type(instructions) == type([]) else [instructions]
 
-	prep_steps = kwargs["prep steps"]
-	prep_steps = prep_steps if type(prep_steps) == type([]) else [prep_steps]
-
-	return cook_steps, prep_steps
+	return recipe_dict["name"], instructions, recipe_dict["ingredients"]
+	
 
 
 def getTransformCategories():
@@ -41,7 +47,6 @@ def getTransformCategories():
 	]
 	
 
-
 class Root(object):
 	@cherrypy.expose
 	def index(self):
@@ -63,28 +68,46 @@ class Root(object):
 
 	@cherrypy.expose
 	def search(self, q=""):
-		recipe_dict = parsing.parseHtml(q)
-		cook_steps, prep_steps = getRecipe(recipe_dict)
+
+		name, instructions, ingredients = getRecipe(q)
 
 		mytemplate = templates.lookup('recipe.html')
-		return mytemplate.render(title=recipe_dict["name"],
-			ingredients=recipe_dict["ingredients"],
-			prep_steps=prep_steps,
-			cook_steps=cook_steps,
+		return mytemplate.render(title=name,
+			ingredients=ingredients,
+			url=q,
+			instructions=instructions,
 			transform_categories=getTransformCategories())
 
-
+	"""
 	@cherrypy.expose
 	def replace(self, **kwargs):
 
 		cat = kwargs["transform_category"]
 		typ = kwargs["transform_type"]
-		"""
+		
 		cook_steps, prep_steps = getRecipe(kwargs)
 		transformed_recipe = transform_recipe(ingredients, cook_steps+prep_steps, cat, typ)
-		"""
+		
 		transformed_recipe = {"instructions":cat, "ingredients": typ}
 		return json.dumps(transformed_recipe)
+	"""
+
+	@cherrypy.expose
+	def replace(self, **kwargs):
+
+		name, instructions, ingredients = getRecipe(kwargs["q"])
+
+		cat = kwargs["transform_category"]
+		typ = kwargs["transform_type"]
+		
+		#ingredients, instructions = transform_recipe(ingredients, instructions, cat, typ)
+
+		mytemplate = templates.lookup('recipe.html')
+		return mytemplate.render(title=name,
+			ingredients=ingredients,
+			url=kwargs["q"],
+			instructions=instructions,
+			transform_categories=getTransformCategories())
 
 
 
