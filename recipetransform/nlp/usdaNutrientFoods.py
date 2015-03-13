@@ -70,6 +70,7 @@ def buildDB():
     for item in results:
         d = {}
         d['name'] = item['name']
+        d['measure'] = item['measure']
         for nut in item['nutrients']:
             d[nut['nutrient']] = nut['value']
         

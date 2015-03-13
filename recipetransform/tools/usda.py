@@ -124,14 +124,15 @@ def getFoodGroupLists():
 
 def loadNutrients(infile):
 
-	with open(infile, "r") as fp:
+	with open(infile) as fp:
 		
 		db = tools.DBconnect()
-		ingredients = json.load(jp)
+		ingredients = json.load(fp)
 
 		db.nutrients.drop()
 		for ingredient in ingredients:
-			db.nutrients.insert(group)
+			print ingredient
+			db.nutrients.insert(ingredient)
 
 
 def loadFoodGroups():
