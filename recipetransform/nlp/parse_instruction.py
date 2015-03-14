@@ -17,11 +17,11 @@ import sys
 import nltk
 
 
-def parse_instruction(list_of_str, name_str):
+def parse_instruction(list_of_str, name):
 	
 	instruction = list_of_str
 	
-	name = nltk.word_tokenize(name_str)
+	name = nltk.word_tokenize(name)
 
 	temp1 = []
 	for instr in instruction:
@@ -88,8 +88,8 @@ def parse_instruction(list_of_str, name_str):
 	#toolTransDict["boil"] = "pot"
 	toolTransDict["saute"] = "pan"
 	toolTransDict["bake"] = "oven"
-	toolTransDict["cupcake"] = "muffin tin"
-	toolTransDict["muffin"] = "muffin tin"
+	toolTransDict["cupcake"] = "muffin pan"
+	toolTransDict["muffin"] = "muffin pan"
 	toolTransDict["fold"] = "spatula"
 	toolTransDict["grate"] = "grater"
 	toolTransDict["refrigerate"] = "refrigerator"
@@ -98,6 +98,54 @@ def parse_instruction(list_of_str, name_str):
 	tools = []
 	i = 0
 	j = 0
+	for instr in instruction:
+		for item in nltk.word_tokenize(instr):
+			if item.lower() == "baking":
+				i = 0
+			if i == 1 and item.lower() == "sheet":
+				tools.append("baking sheet")
+			if i == 1 and item.lower() == "dish":
+				tools.append("baking dish")
+			if item.lower() == "slow":
+				j = 0
+			if j == 1 and item.lower() == "cooker":
+				tools.append("slow cooker")
+				primaryMethod = "slow cooker"
+			if item.lower() in cookingTools:
+				tools.append(item.lower())
+			elif item.lower() in toolTransDict.keys():
+				tools.append(toolTransDict[item.lower()])
+			i = i + 1
+			j = j + 1
+
+
+	if primaryMethod == "none" and "cook" in firstWord:
+		primaryMethod = "cook"
+
+	#print("Primary method:\n" + str(primaryMethod))
+	tools = list(set(tools))
+	#print("Tools:\n" + str(tools))
+
+
+	#STEPS
+
+	foodDict = dict()
+	foodDict["peppers"] = [["2", "green bell", ["sliced"], []], ["1", "red bell", ["sliced"], []]]
+	foodDict["onion"] = [["1", "", ["sliced"], ["thinly"]]]
+	foodDict["mix"] = [["1", "package dry Italian-style salad dressing", [], []]]
+	foodDict["mushrooms"] = [["1 cup", "fresh", ["sliced"], []]]
+	foodDict["potatoes"] = [["1 ounce", "cheesy", ["sliced"], []]]
+
+	timeWords = ["minutes", "seconds", "minute", "second", "hour", "hours"]
+	
+	#for key in foodDict.keys():
+	#	print(nltk.word_tokenize(key))
+
+	stepList = []
+	i = 0
+	j = 0
+	k = 0
+	l = 0
 	for instr in temp2:
 		method = firstWord[k]
 		k = k + 1
