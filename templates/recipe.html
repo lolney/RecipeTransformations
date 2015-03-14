@@ -5,8 +5,7 @@
 <%block name="content">
     <div class="container" id="content">
         <h2>
-        <div style="-webkit-transform: rotate(-7deg); display: inline-block;"></div> 
-        ${title} </h2>
+        ${title} <div style="-webkit-transform: rotate(-2deg); display: inline-block;">${"(" + transformation + ")" if transformation is not "" else ""}</div></h2>
 
         <div>
             % for transform in transform_categories:
@@ -35,7 +34,7 @@
             <h3> Ingredients </h3>
                 <ul>
                 % for ingredient in ingredients:
-                  <li >${ingredient["quantity"] + " " + ingredient["name"]}</li>
+                  <li >${ingredient}</li>
                 % endfor
                 </ul>
         </div>

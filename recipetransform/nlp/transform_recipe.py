@@ -13,6 +13,7 @@ def replaceIngredient(ingredients, index, new_ingredient):
 	"""
 
 	ingredients[index]["name"] = new_ingredient["name"]
+	ingredients[index]["descriptor"] = new_ingredient["descriptor"]
 
 	return ingredients
 
@@ -66,6 +67,22 @@ def getScore(ingredient, food_group, transform_category):
 	return score
 
 
+def findIngredientAboveScore(score, food_groups, transform_category, addl_query=[]):
+
+	db = tools.DBconnect()
+
+	pipe1 = [
+	{"$match": {"food_group": {"$in": food_groups}}},
+	{"$unwind": "$ingredients"},
+	{"$match": {"ingredients." + transform_category: {"$gt":score}}}]
+
+	pipe2 =	[{"$sort": SON({"ingredients." + transform_category: -1})}]
+
+	results = db.posteriors.aggregate(pipe1 + addl_query + pipe2)["result"]
+
+	return results
+
+
 def getReplacementCandidate(ingredient, score, food_group, transform_category, index=0):
 	"""
 	Look in food_group 
@@ -79,19 +96,21 @@ def getReplacementCandidate(ingredient, score, food_group, transform_category, i
 	if addl_group is not None:
 		food_groups.append(addl_group)
 
-	match1 = {"$match": {"food_group": {"$in": food_groups}}}
-	unwind = {"$unwind": "$ingredients"}
-	match2 = {"$match": {"ingredients." + transform_category: {"$gte":score}}}
-	sort = {"$sort": SON({"ingredients." + transform_category: -1})}	
-
-	results = db.posteriors.aggregate([match1, unwind, match2, sort])["result"]
+	name = ingredient["name"]
+	name_regex = [re.compile(word, re.IGNORECASE) for word in nltk.word_tokenize(name)]
+	query = [{"$match": {"ingredients.ingredient" : {"$in" : name_regex}}}]
+	results = findIngredientAboveScore(score, food_groups, transform_category, query)
 
 	if len(results) > index:
 		#print len(results), results[0]["ingredients"][transform_category]
 		return decode(results[index]["ingredients"]["ingredient"])
-	else:
-		return ingredient
+	
+	results = findIngredientAboveScore(score, food_groups, transform_category)
 
+	if len(results) > index:
+		return decode(results[index]["ingredients"]["ingredient"])
+
+	return ingredient
 
 
 def reduceResults(results):
@@ -169,28 +188,42 @@ def ingredientSearchAggregate(ingredient, makeQuery, collection, pipe, query_ind
 	return results
 
 
+def checkFoodGroupsList(name):
+	tokens = nltk.word_tokenize(name)
+	query = {"food_group": {"$in" : tokens}}
+
+	db = tools.DBconnect()
+	results = db.food_groups_list.find(query)
+
+	if results.count() > 0:
+		return results[0]["food_group"]
+	else:
+		return None
+
+
 def getFoodGroup(ingredient):
 	"""
 	Depending on quality of USDA data, may need to reconsider how this is chosen
 	"Beef products" and "Baked products" seem to include everything
 	"""
 
-	food_group = None
+	food_group = checkFoodGroupsList(ingredient["name"])
 
-	makeQuery = lambda name: {"food":name}
+	if food_group is None:
+		makeQuery = lambda name: {"food":name}
 
 
-	pipe = [
-	{},
-	{"$unwind": "$food_groups"},
-	{"$group": {"_id": "$food_groups", "count": {"$sum": 1}}},
-	{"$sort": SON([("count", -1), ("_id", -1)])}
-	]
+		pipe = [
+		{},
+		{"$unwind": "$food_groups"},
+		{"$group": {"_id": "$food_groups", "count": {"$sum": 1}}},
+		{"$sort": SON([("count", -1), ("_id", -1)])}
+		]
 
-	results = ingredientSearchAggregate(ingredient, makeQuery, "food_groups", pipe, 0)
-	if len(results) > 0:
-		print results
-		food_group = results[0]['_id']
+		results = ingredientSearchAggregate(ingredient, makeQuery, "food_groups", pipe, 0)
+		if len(results) > 0:
+			print results
+			food_group = results[0]['_id']
 
 
 	return food_group
@@ -202,7 +235,7 @@ def transformDietCuisine(parsed_ingredients, parsed_instructions, transform_cate
 	for i, ingredient in enumerate(parsed_ingredients):
 
 		print ingredient
-		ingredient["descriptor"] = ""
+		ingredient["descriptor"] = "" if "descriptor" not in ingredient.keys() else ingredient["descriptor"]
 		food_group = getFoodGroup(ingredient)
 		score = getScore(ingredient, food_group, transform_category)
 
@@ -298,6 +331,18 @@ def testFoodGroups():
 	},
 	{
 	"name":"bacon",
+	"descriptor": ""
+	},
+	{
+	"name":"beef",
+	"descriptor": ""
+	},
+	{
+	"name":"fruit",
+	"descriptor": ""
+	},
+	{
+	"name":"soy sauce",
 	"descriptor": ""
 	}]
 	

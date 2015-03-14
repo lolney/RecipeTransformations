@@ -65,6 +65,7 @@ def getSearchParams(category):
 	query = getAuthInfo()
 	qstring = urllib.urlencode(query)
 	url = "http://api.yummly.com/v1/api/" + endpoint + qstring
+	print url
 	jsonp = urllib2.urlopen(url).read()
 
 	json_str = jsonp[ jsonp.index("[") : jsonp.rindex(")") ]
@@ -144,6 +145,7 @@ def doDownload():
 
 
 def main():
+	doDownload()
 	ids_to_cats, ids_to_ingredients = idsToCategories()
 	print len(ids_to_ingredients)
 

@@ -7,9 +7,10 @@ TODO:
 
 	- Might be easier just to include food-group -> food-group lookup table for diets
 - Subtle improvements:
-	- Try searching in the name of the food group first
 	- Try to replace descriptor first?
 	- Changing the name of the recipe?
+	- u'descriptor': u'beef round steak , cut into thin'
+	- http://127.0.0.1:8080/search?q=http%3A%2F%2Fallrecipes.com%2FRecipe%2FLighter-Mexican-Meatloaf%2F
 - UI improvements?
 	- show old ingredients?
 	- add a footer

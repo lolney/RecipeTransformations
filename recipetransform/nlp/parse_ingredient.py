@@ -7,6 +7,7 @@ words that indicate preparation:
 minced lemon zest		<- participle
 pork tenderloin, cut into 1 1/2 inch pieces 	<- participle phrase
 """
+import nltk
 
 def convert_ingredient(name,parse_list):
 	quant_list = parseQuantity(parse_list[0])
@@ -18,7 +19,6 @@ def convert_ingredient(name,parse_list):
 		"preparation":	parse_list[2],
 		"prep_descriptor": parse_list[3]
 	}
-}
 
 def parseQuantity(string):
 	tokens = nltk.word_tokenize(string)

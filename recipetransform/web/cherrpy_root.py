@@ -25,7 +25,7 @@ def getRecipe(url):
 	
 
 
-def getTransformCategories():
+def getTransformCategories(transform_category=None):
 
 	db = tools.DBconnect()
 
@@ -37,11 +37,13 @@ def getTransformCategories():
 	diets = db.posteriors.find(query2, projection).limit(1)[0]["ingredients"][0]
 
 	getItems = lambda items : [item for item in items if item not in ["ingredient","transform_type","_id"]]
-	print getItems(cuisines)
+
+	diets = getItems(diets)
+	cuisines = getItems(cuisines)
 
 	return [
-		{"Name" : "Diet", "Categories" : getItems(diets)},
-		{"Name" : "Cuisine", "Categories" : getItems(cuisines)},
+		{"Name" : "Diet", "Categories" : diets},
+		{"Name" : "Cuisine", "Categories" : cuisines},
 		{"Name" : "Sodium", "Categories" : ["Low","High"]},
 		{"Name" : "Calories", "Categories" : ["Low","High"]}
 	]
@@ -71,11 +73,19 @@ class Root(object):
 
 		name, instructions, ingredients = getRecipe(q)
 
+		ingredient_strings = []
+		for ingredient in ingredients:
+			str = " ".join([ingredient["quantity"], ingredient["measurement"], ingredient["descriptor"], ingredient["name"]])
+			ingredient_strings.append(str)
+
+		print ingredients
+
 		mytemplate = templates.lookup('recipe.html')
 		return mytemplate.render(title=name,
-			ingredients=ingredients,
+			ingredients=ingredient_strings,
 			url=q,
 			instructions=instructions,
+			transformation="",
 			transform_categories=getTransformCategories())
 
 	"""
@@ -102,12 +112,25 @@ class Root(object):
 		
 		ingredients, instructions = transform_recipe(ingredients, instructions, cat, typ)
 
+		ingredient_strings = []
+		for ingredient in ingredients:
+			"""
+			preps = []
+			for i in range(len(ingredient["prep_descriptor"])):
+				preps.append(ingredient["preparation"][i] + " " + ingredient["prep_descriptor"][i])
+			print ingredient
+			ingredient["preparation"] = preps"""
+
+			str = " ".join([ingredient["quantity"], ingredient["measurement"], ingredient["descriptor"], ingredient["name"]])
+			ingredient_strings.append(str)
+
 		mytemplate = templates.lookup('recipe.html')
 		return mytemplate.render(title=name,
-			ingredients=ingredients,
+			ingredients=ingredient_strings,
 			url=kwargs["q"],
+			transformation=cat,
 			instructions=instructions,
-			transform_categories=getTransformCategories())
+			transform_categories=getTransformCategories(cat))
 
 
 

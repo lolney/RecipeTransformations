@@ -1,6 +1,6 @@
 from BeautifulSoup import BeautifulSoup
 from recipetransform.nlp.parse_instruction import parse_instruction
-from recipetransform.nlp.parse_ingredient import parse_ingredient, parseIngredient, convert_ingredient
+from recipetransform.nlp.parse_ingredient import parseIngredient, convert_ingredient
 import urllib2
 
 
