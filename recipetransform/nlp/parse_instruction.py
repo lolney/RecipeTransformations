@@ -17,11 +17,11 @@ import sys
 import nltk
 
 
-def parse_instruction(list_of_str, name, foodDict):
+def parse_instruction(list_of_str, name_str, foodDict):
 	
 	instruction = list_of_str
 	
-	name = nltk.word_tokenize(name)
+	name = nltk.word_tokenize(name_str)
 
 	temp1 = []
 	for instr in instruction:
