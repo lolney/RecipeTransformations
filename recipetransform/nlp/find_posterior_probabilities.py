@@ -1,7 +1,7 @@
 import pymongo, nltk, re
 import recipetransform.tools.database as tools
-import recipetransform.nlp.yummly as yum
-from recipetransform.nlp.parse_ingredient import parse_ingredient
+import recipetransform.tools.yummly as yum
+from recipetransform.nlp.parse_ingredient import parse_yummly_ingredient
 from recipetransform.nlp.transform_recipe import getFoodGroup
 from recipetransform.tools.dictionary_ops import *
 from recipetransform.tools.database import encode, decode
@@ -56,7 +56,7 @@ def findPosteriors(ids, download_function, penalize_below_n=10):
 		ingredients = download_function(id)
 		cats = ids[id]
 		# TODO: write parser
-		parsed_ingredients = [parse_ingredient(ingredient) for ingredient in ingredients]
+		parsed_ingredients = [parse_yummly_ingredient(ingredient) for ingredient in ingredients]
 		# add all the categories to the freqdists
 		freqdists = setDict(cats, freqdists, {})
 		# set word counts for each word in each category

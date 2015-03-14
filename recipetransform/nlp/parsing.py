@@ -1,6 +1,6 @@
 from BeautifulSoup import BeautifulSoup
-from recipetransform.nlp.parse_instruction import parse_instruction
 from recipetransform.nlp.parse_ingredient import parseIngredient, convert_ingredient
+from recipetransform.nlp.parse_instruction import parse_instruction
 import urllib2
 
 
@@ -69,11 +69,11 @@ def parseHtmlforProgramInterface(url):
 	ingDict = getIngredients(parsed_html)
 	instructions = getInstructions(parsed_html)
 
-	parsed_instructions = parse_instruction(ingredients, ingDict)
 	ingredients = []
 	for x in ingDict.keys():
 		for y in ingDict[x]:
 			ingredients.append(convert_ingredient(x,y))
+	parsed_instructions = parse_instruction(ingredients, ingDict)
 
 	return {
 		"ingredients" : ingredients,
@@ -81,6 +81,17 @@ def parseHtmlforProgramInterface(url):
 		"cooking methods" : parsed_instructions["cooking methods"],
 		"cooking tools" : parsed_instructions["cooking tools"]
 	}
+
+
+def main(url="http://allrecipes.com/Recipe/Easy-Garlic-Broiled-Chicken/"):
+
+	print parseHtmlforProgramInterface(url)
+
+
+if __name__ == "__main__":
+	main()
+
+
 
 
 

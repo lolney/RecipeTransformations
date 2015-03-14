@@ -12,7 +12,6 @@ and the name, which will be important in deciding the primary cooking method
 """
 #Kristin's attempt
 
-import parsing
 import sys
 import nltk
 
