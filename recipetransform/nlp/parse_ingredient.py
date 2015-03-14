@@ -26,7 +26,8 @@ def parseQuantity(string):
 
 def parseIngredient(string):
 	pos_str = nltk.pos_tag(nltk.word_tokenize(u"Add in the " + unicode(string)))[3:]
-	VBNitr = (i for i, v in enumerate(pos_str) if v[1] == 'VBN')
+	pos_str = punctSanitize(pos_str)
+	VBNitr = (i for i, v in enumerate(pos_str) if v[1] == 'VBN' or v[1] == 'VBD')
 	VBNnext = next(VBNitr,None)
 	
 	if VBNnext is None:
@@ -44,18 +45,18 @@ def parseIngredient(string):
 
 	ing_split = splitIngPhrase(pos_str[:VBNnext])
 	prep_split = splitPrepPhraseList(pos_str[VBNnext:],False)
-	if ing_split is None:
-		print "ing"
-	if prep_split is None:
-		print "prep"
 	return [ing_split[0],ing_split[1],prep_split[0],prep_split[1]]
 
 def splitIngPhrase(pos_str):
-	return [pos_str[-1][0]," ".join([x[0] for x in pos_str[:-1]])]
+	parendesc = ''
+	if pos_str[-1][0] == ',':
+		del pos_str[-1]
+	if pos_str[-1][1] == 'PARENPHRASE':
+		parendesc = ' ' + pos_str[-1][0]
+		del pos_str[-1]
+	return [pos_str[-1][0]," ".join([x[0] for x in pos_str[:-1]]) + parendesc]
 
 def splitPrepPhraseList(pos_str,prepended):
-	if pos_str is None:
-		print "pos_str is None!"
 	commaitr = (i for i,v in enumerate(pos_str) if v == (',',','))
 	commapos = next(commaitr,None)
 
@@ -78,12 +79,34 @@ def splitPrepPhraseList(pos_str,prepended):
 	return [[prep],[desc]]
 
 def splitPrepPhrase(pos_prep,prepended):
+	parendesc = ''
 	if pos_prep[0][0] == "and":
 		pos_prep = pos_prep[1:]
 	if prepended:
+		if pos_prep[-1][1] == 'PARENPHRASE':
+			parendesc = ' ' + pos_prep[-1][0]
+			del pos_prep[-1]
 		prep = pos_prep[-1][0]
-		desc = " ".join([x[0] for x in pos_prep[:-1]])
+		desc = " ".join([x[0] for x in pos_prep[:-1]]) + parendesc
 	else:
+		if pos_prep[0][1] == 'PARENPHRASE':
+			parendesc = ' ' + pos_prep[0][0]
+			del pos_prep[0]
 		prep = pos_prep[0][0]
-		desc = " ".join([x[0] for x in pos_prep[1:]])
+		desc = " ".join([x[0] for x in pos_prep[1:]]) + parendesc
 	return [prep,desc]
+
+def punctSanitize(pos_str):
+	parenitr = (i for i,v in enumerate(pos_str) if v[0] == '(')
+	parenpos = next(parenitr,None)
+	while parenpos is not None:
+		endparenpos = next((i for i,v in enumerate(pos_str) if v[0] == ')' and i > parenpos),None)
+		if endparenpos is not None:
+			after = []
+			if len(pos_str) > endparenpos + 1:
+				after = pos_str[endparenpos + 1:]
+			pos_str = pos_str[:parenpos] + [(pos_str[parenpos][0] + ' '.join([x[0] for x in pos_str[parenpos + 1:endparenpos]]) + pos_str[endparenpos][0],'PARENPHRASE')]  + after
+		else:
+			del pos_str[parenpos]
+		parenpos = next(parenitr,None)
+	return [x for x in pos_str if x[1] != '.']
