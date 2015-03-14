@@ -128,7 +128,8 @@ def doDownload():
 			for result in results:
 				id = result["id"]
 				ingredients = result["ingredients"]
-				recipe_dict = {"id":id, "ingredients":ingredients}
+				flavors = result["flavors"]
+				recipe_dict = {"id":id, "ingredients":ingredients, "flavors" : flavors}
 				results_dictionary = addItemToDict(category, results_dictionary, recipe_dict)
 
 

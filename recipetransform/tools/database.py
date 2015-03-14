@@ -1,4 +1,4 @@
-import pymongo
+import pymongo, re
 
 def DBconnect():
 	client = pymongo.MongoClient('mongodb://localhost:27017/')
@@ -6,7 +6,7 @@ def DBconnect():
 
 	return db
 
-	
+
 def encode(name, descriptor):
 	return name + "}" + descriptor
 
@@ -23,3 +23,19 @@ def decode(word):
 	 "descriptor" : items[1] if len(items) == 2 else ""
 	 }
 	 return ingredient
+
+
+def queryDbForName(name):
+
+ 	db = DBconnect()
+
+ 	name_regex = re.compile(name, re.IGNORECASE)
+
+	pipe = [
+		{"$unwind": "$ingredients"},
+		{"$match": {"ingredients.ingredient" : name_regex}}
+	]
+
+	results = db.posteriors.aggregate(pipe)["result"]
+
+	return len(results)

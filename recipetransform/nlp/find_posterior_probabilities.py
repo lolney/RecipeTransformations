@@ -8,8 +8,6 @@ from recipetransform.tools.database import encode, decode
 
 
 
-
-
 def findWordCountForRecipe(cats, ingredients, freqdists):
 	""" 
 	cats -  a list of strings
