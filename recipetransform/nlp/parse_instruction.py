@@ -50,7 +50,7 @@ def parse_instruction(list_of_str, name_str):
 		elif len(words) > 1 and words[1] == u'to' and words[0].endswith("ing"):
 			i = 0
 			str1 = ""
-			while i < len(words) and words[i] != '.' and words[i] != ';':
+			while i < len(words) and words[i] != '.' and words[i] != ';' and words[i] != ',':
 				str1 = str1 + " " + words[i]
 				i = i + 1
 			firstWord.append(str1.lower())
@@ -93,68 +93,27 @@ def parse_instruction(list_of_str, name_str):
 	toolTransDict["fold"] = "spatula"
 	toolTransDict["grate"] = "grater"
 	toolTransDict["refrigerate"] = "refrigerator"
+	toolTransDict["measure"] = "measuring cup"
 	
 	tools = []
 	i = 0
 	j = 0
-	for instr in instruction:
-		for item in nltk.word_tokenize(instr):
-			if item.lower() == "baking":
-				i = 0
-			if i == 1 and item.lower() == "sheet":
-				tools.append("baking sheet")
-			if i == 1 and item.lower() == "dish":
-				tools.append("baking dish")
-			if item.lower() == "slow":
-				j = 0
-			if j == 1 and item.lower() == "cooker":
-				tools.append("slow cooker")
-				primaryMethod = "slow cooker"
-			if item.lower() in cookingTools:
-				tools.append(item.lower())
-			elif item.lower() in toolTransDict.keys():
-				tools.append(toolTransDict[item.lower()])
-			i = i + 1
-			j = j + 1
-
-
-	if primaryMethod == "none" and "cook" in firstWord:
-		primaryMethod = "cook"
-
-	#print("Primary method:\n" + str(primaryMethod))
-	tools = list(set(tools))
-	#print("Tools:\n" + str(tools))
-
-
-	#STEPS
-
-	foodDict = dict()
-	foodDict["peppers"] = [["2", "green bell", ["sliced"], []], ["1", "red bell", ["sliced"], []]]
-	foodDict["onion"] = [["1", "", ["sliced"], ["thinly"]]]
-	foodDict["mix"] = [["1", "package dry Italian-style salad dressing", [], []]]
-	foodDict["mushrooms"] = [["1 cup", "fresh", ["sliced"], []]]
-	foodDict["potatoes"] = [["1 ounce", "cheesy", ["sliced"], []]]
-
-	timeWords = ["minutes", "seconds", "minute", "second", "hour", "hours"]
-	
-	#for key in foodDict.keys():
-	#	print(nltk.word_tokenize(key))
-
-	stepList = []
-	i = 0
-	j = 0
-	k = 0
-	l = 0
 	for instr in temp2:
 		method = firstWord[k]
 		k = k + 1
 		stepTools = []
 		stepIngred = []
 		stepTime = ""
+		untilInstr = ""
 		timeFlag = 0
 		perFlag = 0
 		index = 0
+		m = 0
 		for item in nltk.word_tokenize(instr):
+			if item.lower() in [",", ";", ".", "and"]:
+				m = 0
+			if m == 1:
+				untilInstr = untilInstr + " " + item.lower()
 			if perFlag == 1:
 				stepTime = stepTime + item.lower()
 				perFlag = 0
@@ -171,6 +130,9 @@ def parse_instruction(list_of_str, name_str):
 			elif (l == 2 or l == 4) and timeFlag == 1 and item.lower() == "per":
 				stepTime = stepTime + " per "
 				perFlag = 1
+			if item.lower() == "until":
+				m = 1
+				untilInstr = "until"
 			if item.lower() == "baking":
 				i = 0
 			if i == 1 and item.lower() == "sheet":
@@ -203,6 +165,10 @@ def parse_instruction(list_of_str, name_str):
 			index = index + 1
 		if timeFlag == 0:
 			stepTime = ""
+		if stepTime == "":
+			stepTime = untilInstr
+		elif not(stepTime == "") and not(untilInstr == ""):
+			stepTime = stepTime + " or " + untilInstr
 		stepList.append([method, stepIngred, stepTools, stepTime])
 	#print("Steps:")
 	#print(stepList)
