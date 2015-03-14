@@ -23,7 +23,15 @@ def updateInstruction(parsed_instructions, old_ingredient, new_ingredient):
 	update instructions, replacing old_ingredient (full ingredient dictionary)
 	with new_ingredient (ingredient dictionary with name, descriptor)
 	"""
-	return parsed_instructions
+	new_instructions = []
+	for instruction in parsed_instructions:
+		instruction = re.sub(R'\b'+old_ingredient["name"]+R'\b',
+			new_ingredient["name"], instruction)
+		instruction = re.sub(R'\b'+old_ingredient["descriptor"]+R'\b', 
+			new_ingredient["descriptor"], instruction)
+		new_instructions.append(instruction)
+
+	return new_instructions
 
 
 def tryExclusionTable(food_group, transform_category):
@@ -251,9 +259,9 @@ def transformDietCuisine(parsed_ingredients, parsed_instructions, transform_cate
 		replacement_counter = addDict(food_group, replacement_counter, 1)
 
 		if candidate is not None:
-			parsed_ingredients = replaceIngredient(parsed_ingredients, i, candidate)
 			parsed_instructions = updateInstruction(parsed_instructions, ingredient, candidate)
-
+			parsed_ingredients = replaceIngredient(parsed_ingredients, i, candidate)
+			
 
 	return parsed_ingredients, parsed_instructions
 

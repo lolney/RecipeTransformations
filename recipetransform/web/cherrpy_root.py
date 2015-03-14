@@ -47,6 +47,21 @@ def getTransformCategories(transform_category=None):
 		{"Name" : "Sodium", "Categories" : ["Low","High"]},
 		{"Name" : "Calories", "Categories" : ["Low","High"]}
 	]
+
+def getIngredientStrings(ingredients):
+
+	ingredient_strings = []
+	for ingredient in ingredients:
+		"""
+		preps = []
+		for i in range(len(ingredient["prep_descriptor"])):
+			preps.append(ingredient["preparation"][i] + " " + ingredient["prep_descriptor"][i])
+		print ingredient
+		ingredient["preparation"] = preps"""
+		str = " ".join([ingredient["quantity"], ingredient["measurement"], ingredient["descriptor"], ingredient["name"]])
+		ingredient_strings.append(str)
+
+	return ingredient_strings
 	
 
 class Root(object):
@@ -73,10 +88,7 @@ class Root(object):
 
 		name, instructions, ingredients = getRecipe(q)
 
-		ingredient_strings = []
-		for ingredient in ingredients:
-			str = " ".join([ingredient["quantity"], ingredient["measurement"], ingredient["descriptor"], ingredient["name"]])
-			ingredient_strings.append(str)
+		ingredient_strings = getIngredientStrings(ingredients)
 
 		print ingredients
 
@@ -112,17 +124,7 @@ class Root(object):
 		
 		ingredients, instructions = transform_recipe(ingredients, instructions, cat, typ)
 
-		ingredient_strings = []
-		for ingredient in ingredients:
-			"""
-			preps = []
-			for i in range(len(ingredient["prep_descriptor"])):
-				preps.append(ingredient["preparation"][i] + " " + ingredient["prep_descriptor"][i])
-			print ingredient
-			ingredient["preparation"] = preps"""
-
-			str = " ".join([ingredient["quantity"], ingredient["measurement"], ingredient["descriptor"], ingredient["name"]])
-			ingredient_strings.append(str)
+		ingredient_strings = getIngredientStrings(ingredients)
 
 		mytemplate = templates.lookup('recipe.html')
 		return mytemplate.render(title=name,
