@@ -12,11 +12,12 @@ and the name, which will be important in deciding the primary cooking method
 """
 #Kristin's attempt
 
+import parsing
 import sys
 import nltk
 
 
-def parse_instruction(list_of_str, name):
+def parse_instruction(list_of_str, name, foodDict):
 	
 	instruction = list_of_str
 	
@@ -76,7 +77,7 @@ def parse_instruction(list_of_str, name):
 	
 
 	cookingTools = ["ladle", "tongs", "spoon", "spatula", "whisk", "knife", "grater", "peeler", "garlic press", "lemon press", "shears", "can opener", 
-	"corkscrew", "thermometer", "measuring cups", "salad spinners", "colander", "cutting board", "bowl", "saucepan", "pan", "baking sheet", "baking dish", "pot", "skillet", "fork", "forks", "oven"]
+	"corkscrew", "thermometer", "measuring cups", "salad spinners", "colander", "cutting board", "bowl", "saucepan", "pan", "baking sheet", "baking dish", "pot", "skillet", "fork", "forks", "oven", "griddle"]
 	toolTransDict = dict()
 	toolTransDict["cut"] = "knife"
 	toolTransDict["dice"] = "knife"
@@ -128,12 +129,12 @@ def parse_instruction(list_of_str, name):
 
 	#STEPS
 
-	foodDict = dict()
-	foodDict["peppers"] = [["2", "green bell", ["sliced"], []], ["1", "red bell", ["sliced"], []]]
-	foodDict["onion"] = [["1", "", ["sliced"], ["thinly"]]]
-	foodDict["mix"] = [["1", "package dry Italian-style salad dressing", [], []]]
-	foodDict["mushrooms"] = [["1 cup", "fresh", ["sliced"], []]]
-	foodDict["potatoes"] = [["1 ounce", "cheesy", ["sliced"], []]]
+	#foodDict = dict()
+	#foodDict["peppers"] = [["2", "green bell", ["sliced"], []], ["1", "red bell", ["sliced"], []]]
+	#foodDict["onion"] = [["1", "", ["sliced"], ["thinly"]]]
+	#foodDict["mix"] = [["1", "package dry Italian-style salad dressing", [], []]]
+	#foodDict["mushrooms"] = [["1 cup", "fresh", ["sliced"], []]]
+	#foodDict["potatoes"] = [["1 ounce", "cheesy", ["sliced"], []]]
 
 	timeWords = ["minutes", "seconds", "minute", "second", "hour", "hours"]
 	
@@ -201,9 +202,14 @@ def parse_instruction(list_of_str, name):
 			for key in foodDict.keys():
 				if item.lower() in nltk.word_tokenize(key):
 					if len(foodDict[key]) > 1:
+						n = 0
 						for item1 in foodDict[key]:
 							if nltk.word_tokenize(instr)[index-1] in nltk.word_tokenize(item1[1]):
 								stepIngred.append(str(item1[1] + " " + key))
+								n = 1
+							if n == 0:
+								n = 1
+								stepIngred.append(item.lower())
 					elif len(nltk.word_tokenize(key)) > 1:
 						if len(nltk.word_tokenize(instr)) > (index + 1) and nltk.word_tokenize(key)[1] == nltk.word_tokenize(instr)[index + 1]:
 							stepIngred.append(key)
@@ -230,6 +236,8 @@ def parse_instruction(list_of_str, name):
 	print("All Methods:\n" + str(instrDict["allMethods"]))
 	print("Tools:\n" + str(instrDict["tools"]))
 	print("Steps:\n" + str(instrDict["steps"]))
+
+
 	return {
 		"cooking method" : primaryMethod,
 		"secondary cooking methods" : firstWord1,
