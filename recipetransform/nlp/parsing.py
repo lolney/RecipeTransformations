@@ -32,7 +32,7 @@ def getIngredients(html):
 
 	return ingDict
 	
-def getInstructions(html,ingDict):
+def getInstructions(html):
 	content = html.body.find('div', attrs={'class':'directions'})
 
 	instruction_lis = content.findAll('li')
@@ -40,7 +40,6 @@ def getInstructions(html,ingDict):
 	instructions = []
 	for instruction in instruction_lis:
 		instruction_text = instruction.find('span').text;
-		#parsed_ingred = parse_instruction(instruction_text)
 		instructions.append(instruction_text)
 
 	return instructions
@@ -55,10 +54,34 @@ def parseHtml(url):
 
 	name = getName(parsed_html)
 	ingDict = getIngredients(parsed_html)
-	instructions = getInstructions(parsed_html,ingDict)
+	instructions = getInstructions(parsed_html)
 	ingredients = []
 	for x in ingDict.keys():
 		for y in ingDict[x]:
 			ingredients.append(convert_ingredient(x,y))
 
 	return {"name" : name, "ingredients" : ingredients, "instructions" : instructions}
+
+
+def parseHtmlforProgramInterface(url):
+
+	parsed_html = parse_raw(url)
+	ingDict = getIngredients(parsed_html)
+	instructions = getInstructions(parsed_html)
+
+	parsed_instructions = parse_instruction(ingredients, ingDict)
+	ingredients = []
+	for x in ingDict.keys():
+		for y in ingDict[x]:
+			ingredients.append(convert_ingredient(x,y))
+
+	return {
+		"ingredients" : ingredients,
+		"primary cooking method" : parsed_instructions["primary cooking method"],
+		"cooking methods" : parsed_instructions["cooking methods"],
+		"cooking tools" : parsed_instructions["cooking tools"]
+	}
+
+
+
+
