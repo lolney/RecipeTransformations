@@ -21,13 +21,13 @@ def convert_ingredient(name,parse_list):
 	}
 
 def parseQuantity(string):
-	string = string.replace(', or more to taste','')
-	string = string.replace(' to taste','')
-	string = string.replace(', or more as needed','')
 	tokens = nltk.word_tokenize(string)
 	return [tokens[0]," ".join(tokens[1:])]
 
 def parseIngredient(string):
+	string = string.replace(', or more to taste','')
+	string = string.replace(' to taste','')
+	string = string.replace(', or more as needed','')
 	pos_str = nltk.pos_tag(nltk.word_tokenize(u"Add in the " + unicode(string)))[3:]
 	pos_str = punctSanitize(pos_str)
 	VBNitr = (i for i, v in enumerate(pos_str) if v[1] == 'VBN' or v[1] == 'VBD')
