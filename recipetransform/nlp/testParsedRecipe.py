@@ -214,7 +214,7 @@ parsedRecipe3 = {
 			"descriptor": "fresh",
 			"preperation": "minced",
 			"prep-description": ""
-		}
+		},
 		{
 			"name": "steak",
 			"quantity": 1,
@@ -222,7 +222,7 @@ parsedRecipe3 = {
 			"descriptor": "beef round",
 			"preperation": "cut",
 			"prep-description": "into thin strips"
-		}
+		},
 		{
 			"name": "peas",
 			"quantity": 8,

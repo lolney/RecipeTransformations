@@ -1,61 +1,61 @@
-from testParsedRecipe import parsedRecipe2
-from testParsedRecipe import parsedRecipe
-from HealthyTransformationKB import lowCalSubs
-from HealthyTransformationKB import highCalBad
-from HealthyTransformationKB import lowCalGood
-from InternalRepresentationRecipe import internal
-from autoOrgtoInternalOrgo import internal2
-from autoOrgtoInternalOrgo import internal3
-from HealthyTransformationKB import lowSodiumSub
-from HealthyTransformationKB import highSodium
+import testParsedRecipe as test
+from pprint import pprint
 
-def toHealthyCal(recipe):
-        """
-        Takes in a recipe and replaces high calorie ingredients with
-        low calorie ones.
-        """
-        for ing in recipe:
-                for item in recipe[ing]:
-                        desc = item[2]
-                        for thing in highCalBad:
-                                if ing == thing:
-                                       replaceHighCal(ing, recipe, desc)
-        return
+import recipetransform.tools.database as tools
+import pymongo
+import re
+from bson.son import SON
+import recipetransform.tools.database as tools
+from recipetransform.tools.database import encode, decode
+from recipetransform.tools.dictionary_ops import *
 
-def replaceHighCal(ing, recipe, desc):
-        """
-        Takes an ingredient, the recipe it is in, and its description and
-        replaces the ingredient in the recipe list.
-        """
-        print "ingredient name " + ing
-        for item in recipe[ing]:
-                print item[2]
-                print desc
-                if item[2] == desc:
-                        item[2] += ", " + lowCalSubs[ing][0]["descriptor"]
-        return recipe
+def transformHealthy(parsedIngs, transformCat, transformType):
+    if (transformCat== "calories"):
+        if(transformType=="low"):
+            transform(parsedIngs, "Energy", 1)
+        else:
+            transform(parsedIngs, "Energy", -1)
+    else:
+        if(transformType=="low"):
+            transform(parsedIngs, "Sodium,Na", 1)
+        else:
+            transform(parsedIngs, "Sodium,Na", -1)
 
-def toHealthySodium(recipe):
-        """
-        Takes in a recipe and replaces all high sodium ingredients with low
-        sodium versions.
-        """
-        for ing in recipe:
-                for item in recipe[ing]:
-                        desc = item[2]
-                        for thing in highSodium:
-                                if ing == thing:
-                                       replaceHighSod(ing, recipe, desc)
+def transform(parsedIngs, cat, sort):
+    """
+    Get replacement ingredients
+    """
+    # Search db for each ingredients in the
+    for ing in parsedIngs:
+        print "Ingredient " + ing["name"]
+        replacement = getReplacement(ing["name"], cat, sort)
+        print "Replacement is " +replacement
+        print
 
-def replaceHighSod(ing, recipe, desc):
-        """
-        Takes an ingredient, the recipe it is in, and its description and
-        replaces the ingredient with a low sodium substitution.
-        """
-        for item in recipe[ing]:
-                print item[2]
-                print desc
-                if item[2] == desc:
-                        item[2] += ", " + lowSodiumSub[ing][0]["descriptor"]
-        return recipe
+def getReplacement(ingredient, cat, sort):
+    """
+    Query nutrient database
+    """
+    #queryName = "/^"+ingredient+".*/i"
+    #also should consider descriptors
+    pipe = [
+        {"$match": {"name": re.compile("^" +ingredient+"+", re.IGNORECASE)}},
+        {"$sort": SON({cat: sort})}
+    ]
 
+    pipeline = list(pipe)
+    results = queryDB(pipe)
+    #return lowest calory ingredient that matches
+    #print results["result"]    
+    
+    if (results["result"] !=[]):
+        print len(results["result"])
+        print results["result"][0]["Energy"]
+        return results["result"][0]["name"]
+    else:
+        return ingredient
+
+def queryDB(pipeline):
+    db = tools.DBconnect()
+
+    return db["nutrients"].aggregate(pipeline)
