@@ -21,6 +21,9 @@ def convert_ingredient(name,parse_list):
 	}
 
 def parseQuantity(string):
+	string = string.replace(', or more to taste','')
+	string = string.replace(' to taste','')
+	string = string.replace(', or more as needed','')
 	tokens = nltk.word_tokenize(string)
 	return [tokens[0]," ".join(tokens[1:])]
 
