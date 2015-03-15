@@ -1,6 +1,7 @@
 from BeautifulSoup import BeautifulSoup
 from recipetransform.nlp.parse_ingredient import parseIngredient, convert_ingredient
 from recipetransform.nlp.parse_instruction import parse_instruction
+from collections import OrderedDict
 import urllib2
 
 
@@ -16,7 +17,7 @@ def getIngredients(html):
 	content = html.body.find(id='zoneIngredients')
 
 	ingredient_lis = content.findAll(id='liIngredient')
-	ingDict = dict()
+	ingDict = OrderedDict()
 	for ingredient in ingredient_lis:
 		try:
 			ingredient_amount = ingredient.find('span', attrs={'class':'ingredient-amount'}).text
