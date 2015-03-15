@@ -72,7 +72,7 @@ def buildDB():
         d['name'] = item['name']
         d['measure'] = item['measure']
         for nut in item['nutrients']:
-            d[nut['nutrient']] = nut['gm']
+            d[nut['nutrient']] = float(nut['gm'])
         
         nutrients.append(d)
 

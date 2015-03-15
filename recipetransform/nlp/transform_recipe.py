@@ -3,6 +3,7 @@ from bson.son import SON
 import recipetransform.tools.database as tools
 from recipetransform.tools.database import encode, decode
 from recipetransform.tools.dictionary_ops import *
+import recipetransform.nlp.healthyTransformations
 
 
 

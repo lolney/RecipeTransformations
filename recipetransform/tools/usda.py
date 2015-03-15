@@ -131,7 +131,7 @@ def loadNutrients(infile):
 
 		db.nutrients.drop()
 		for ingredient in ingredients:
-			print ingredient
+			#print ingredient
 			db.nutrients.insert(ingredient)
 
 
