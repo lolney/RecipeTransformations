@@ -3,7 +3,7 @@ from bson.son import SON
 import recipetransform.tools.database as tools
 from recipetransform.tools.database import encode, decode
 from recipetransform.tools.dictionary_ops import *
-import recipetransform.nlp.healthyTransformations
+import recipetransform.nlp.healthyTransformations as ht
 
 
 
@@ -274,7 +274,7 @@ def transform_recipe(parsed_ingredients, parsed_instructions, transform_category
 
 	else:
 		if transform_type in ["calories","sodium"] and transform_category in ["low","high"]:
-			result = transformHealthy(parsed_ingredients, transform_category, transform_type)
+			result = ht.transformHealthy(parsed_ingredients, transform_category, transform_type)
 		else:
 			raise ValueError("unexpected transform_type")
 
