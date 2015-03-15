@@ -4,3 +4,4 @@ Mako==1.0.1
 mongoengine==0.8.7
 nltk==3.0.1
 pymongo==2.7.2
+numpy==1.8.1

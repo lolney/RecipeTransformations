@@ -14,7 +14,12 @@ Can also install as a package or install dependencies separately:
 
 ```pip install -r requirements.txt```
 
-
+To run, you’ll need to install maxent_treebank_pos (the trained part of speech tagger) from the NLTK downloader:
+```
+python
+>>> import nltk
+>>> nltk.download()
+```
 
 To start the Cherrypy webserver:
 ```python start_webserver.py```
