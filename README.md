@@ -26,7 +26,7 @@ With MongoDB installed, run the following command to populate the database:
 mongorestore --db recipes data/recipes
 ```
 
-Yyou’ll also need to install maxent_treebank_pos (the trained part of speech tagger) from the NLTK downloader:
+You’ll also need to install maxent_treebank_pos (the trained part of speech tagger) from the NLTK downloader:
 ```
 python
 >>> import nltk
