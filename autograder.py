@@ -4,8 +4,8 @@ import glob
 from pprint import pprint
 from collections import Counter
 
-from recipetransform.nlp.parsing import parseHtmlforProgramInterface as student
-TEAM = 0 # enter your team number here
+from recipetransform.nlp.parsing import parserProgramInterface as student
+TEAM = 2 # enter your team number here
 
 def check_tools(answer, stud):
     score = 0

@@ -63,7 +63,7 @@ def parseHtml(url):
 	return {"name" : name, "ingredients" : ingredients, "instructions" : instructions}
 
 
-def parseHtmlforProgramInterface(url):
+def parserProgramInterface(url):
 
 	parsed_html = parse_raw(url)
 	ingDict = getIngredients(parsed_html)
