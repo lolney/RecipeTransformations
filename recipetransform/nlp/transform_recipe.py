@@ -42,9 +42,7 @@ def tryExclusionTable(food_group, transform_category):
 
 	result = db.exclusion_table.find_one(query)
 
-	print transform_category
 	if result is not None:
-		print result
 		if food_group in result["excluded"]:
 			return "Legumes and Legume Products"
 
@@ -57,7 +55,7 @@ def getScore(ingredient, food_group, transform_category):
 	"""
 	score = None
 
-	makeQuery = lambda str : {"food_group": food_group, "ingredients.ingredient" : str}
+	makeQuery = lambda str : {"ingredients.ingredient" : str}
 
 	pipe = [
 	{"$unwind": "$ingredients"},
@@ -72,6 +70,8 @@ def getScore(ingredient, food_group, transform_category):
 		#print results[0]["ingredients"]["ingredient"]
 		results = [result["ingredients"][transform_category] for result in results]
 		score = results[0]
+	else:
+		print "no results: ", ingredient, food_group
 
 	return score
 
@@ -132,35 +132,6 @@ def reduceResults(results):
 	return sorted(food_groups_counts.items(), key=operator.itemgetter(1), reverse=True)[0][0]
 
 
-
-def ingredientSearch(ingredient, makeQuery, collection):
-
-	db = tools.DBconnect()
-
-	try:
-		descriptor_strings = nltk.word_tokenize(ingredient["descriptor"])
-		descriptors = [re.compile(descriptor, re.IGNORECASE) for descriptor in descriptor_strings]
-		name = re.compile(ingredient["name"], re.IGNORECASE)
-		name_front = re.compile("^" + ingredient["name"] + ".*", re.IGNORECASE)
-	except:
-		print "compile error: ", ingredient
-		return []
-
-	q = makeQuery(name)
-	# try name and descriptors
-	results = db[collection].find({"$and": ([q] + [makeQuery(descriptor) for descriptor in descriptors])})
-	
-	# try just name (first the front of the string)
-	if results.count() == 0:
-		results = db[collection].find(makeQuery(name_front))
-
-	# try name anywhere 
-	if results.count() == 0:
-		results = db[collection].find(q)
-
-	return results
-
-
 def doAggregation(pipe, query, collection, query_index):
 
 	db = tools.DBconnect()
@@ -173,9 +144,14 @@ def doAggregation(pipe, query, collection, query_index):
 
 def ingredientSearchAggregate(ingredient, makeQuery, collection, pipe, query_index):
 
-	descriptor_strings = nltk.word_tokenize(ingredient["descriptor"])
-	name = re.compile(ingredient["name"], re.IGNORECASE)
-	name_front = re.compile("^" + ingredient["name"] + ".*", re.IGNORECASE)
+	try:
+		descriptor_strings = nltk.word_tokenize(ingredient["descriptor"])
+		name_regex = "|".join(nltk.word_tokenize(ingredient["name"]))
+		name = re.compile(name_regex, re.IGNORECASE)
+		name_front = re.compile("^" + ingredient["name"] + ".*", re.IGNORECASE)
+	except:
+		print "compile error: ", ingredient
+		return []
 
 	# try name and descriptors
 	q = makeQuery(name)
@@ -234,8 +210,8 @@ def getFoodGroup(ingredient):
 
 		results = ingredientSearchAggregate(ingredient, makeQuery, "food_groups", pipe, 0)
 		if len(results) > 0:
-			print results
 			food_group = results[0]['_id']
+			print food_group
 
 
 	return food_group
@@ -246,7 +222,6 @@ def transformDietCuisine(parsed_ingredients, parsed_instructions, transform_cate
 	replacement_counter = {}
 	for i, ingredient in enumerate(parsed_ingredients):
 
-		print ingredient
 		ingredient["descriptor"] = "" if "descriptor" not in ingredient.keys() else ingredient["descriptor"]
 		food_group = getFoodGroup(ingredient)
 		score = getScore(ingredient, food_group, transform_category)
@@ -276,12 +251,11 @@ def transform_recipe(parsed_ingredients, parsed_instructions, transform_category
 		result = transformDietCuisine(parsed_ingredients, parsed_instructions, transform_category)
 
 	else:
-		if transform_type in ["calories","sodium"] and transform_category in ["low","high"]:
+		if transform_type in ["calories","sodium"] and transform_category in ["Low","High"]:
 			result = ht.transformHealthy(parsed_ingredients, transform_category, transform_type)
 		else:
 			raise ValueError("unexpected transform_type: " + transform_type + ", " + transform_category)
 
-	print result
 	return result
 
 
@@ -364,22 +338,33 @@ def testFoodGroups():
 
 def testIdReplacements():
 
-	print getReplacementCandidate("water", 0, "Beverages", "Pescetarian")
-	print getReplacementCandidate("water", 0, "Beverages", "Pescetarian")
-	print getReplacementCandidate("fava beans", .1, "Legumes and Legume Products", "Pescetarian")
-	print getReplacementCandidate("fava beans", .2, "Legumes and Legume Products", "Pescetarian")
+	water = {
+	"name":"water",
+	"descriptor": ""
+	}
+	fava_beans = {
+	"name":"fava beans",
+	"descriptor": ""
+	}
+	print getReplacementCandidate(water, 0, "Beverages", "Pescetarian")
+	print getReplacementCandidate(water, 0, "Beverages", "Pescetarian")
+	print getReplacementCandidate(fava_beans, .1, "Legumes and Legume Products", "Pescetarian")
+	print getReplacementCandidate(fava_beans, .2, "Legumes and Legume Products", "Pescetarian")
 
-	print getReplacementCandidate("fava beans", 0, "Legumes and Legume Products", "Italian")
-	print getReplacementCandidate("fava beans", 0, "Legumes and Legume Products", "Japanese")
-	print getReplacementCandidate("fava beans", 0, "Legumes and Legume Products", "Chinese")
-	print getReplacementCandidate("fava beans", 0, "Legumes and Legume Products", "American")
-	print getReplacementCandidate("fava beans", 0, "Legumes and Legume Products", "Mexican")
+	print getReplacementCandidate(fava_beans, 0, "Legumes and Legume Products", "Italian")
+	print getReplacementCandidate(fava_beans, 0, "Legumes and Legume Products", "Japanese")
+	print getReplacementCandidate(fava_beans, 0, "Legumes and Legume Products", "Chinese")
+	print getReplacementCandidate(fava_beans, 0, "Legumes and Legume Products", "American")
+	print getReplacementCandidate(fava_beans, 0, "Legumes and Legume Products", "Mexican")
 
+	print getScore({"name":"beans","descriptor":"cannellini"}, "Legumes and Legume Products", "Italian")
 	print getScore({"name":"water","descriptor":""}, "Beverages", "Pescetarian")
 	print getScore({"name":"spaghetti","descriptor":""}, "Meals, Entrees, and Side Dishes", "Italian")
 	print getScore({"name":"parmesan cheese","descriptor":""}, "Dairy and Egg Products", "Pescetarian")
 	print getScore({"name":"cheese","descriptor":""}, "Baked Products", "Pescetarian")
-
+	print getScore({"name":"root","descriptor":"fresh ginger"}, "Baked Products", "Pescetarian")
+	print getScore({"name":"root","descriptor":"fresh ginger"}, "Baked Products", "Greek")
+	
 
 def main():
 

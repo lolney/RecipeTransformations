@@ -77,7 +77,6 @@ def findPosteriors(ids, download_function, penalize_below_n=10):
 			penalty = 1
 			if word_counts[word] < penalize_below_n:
 				penalty =  1 + penalize_below_n - word_counts[word]
-				print penalty
 
 			# p(recipe | word)
 			posteriors[word][cat] = (float(freqdists[cat][word]) / float(word_counts[word])) / penalty
@@ -92,9 +91,6 @@ def parse(str):
 	except IndexError:
 		print "Index error"
 		print str
-
-	if type(ingparse[0]) == type([]) or type(ingparse[1]) == type([]):
-		print "list detected: ", str, ingparse
 
 	return {
 		"name":	ingparse[0],
