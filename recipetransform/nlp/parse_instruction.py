@@ -68,12 +68,13 @@ def parse_instruction(list_of_str, name_str, foodDict):
 
 	cookingMethods = ["bake", "baked", "barbecue", "barbecued", "boil", "boiled", "braise", "braised", "broil", "broiled",
 	 "fry", "fried" "grill", "grilled" "microwave", "microwaved", "poach", "poached", "roast", "roasted", "saute", "sauted",
-	 "smoke", "smoked", "steam", "steamed", "stir-fry", "season", "stir", "drain", "arrange", "cool", "simmer", "rinse",
+	 "smoke", "smoked", "steam", "steamed", r"stir[ -]fry", "season", "stir", "drain", "arrange", "cool", "simmer", "rinse",
 	 "remove", "preheat", "mix", "whip", "mince", "knead", "grind", "glaze", "combine", "cut", "dice", "chop", "peel",
 	 "cover", "beat", "grate", "serve", "form", "pour", "dissolve", "whisk", "blend", "add", "place", "heat", "tenderize",
 	 "mash", "set", "insert", "cream", "spoon", "brush", "soak", "sift", "toast", "sprinkle", "fold", "drop",
 	 "transfer", "turn", "shake", "mince", "crush", "squeeze", "flip","melt","coat", "spread", "marinate", "barbeque",
-	 "spray", r"fill\b", "clean", r"reduce\b", "chill", "garnish", "warm", r"crumble\b", "flatten", "knead", "divide\b"]
+	 "spray", r"fill\b", "clean", r"reduce\b", "chill", "garnish", "warm", r"crumble\b", "flatten", "knead", r"divide\b",
+	 "bring", "slow cook", "refrigerate", "split", "cook", "peel", "toss", "puree", "pulse"]
 	
 	# Search for cooking methods
 	text = " ".join([name_str] + instruction)
@@ -85,13 +86,14 @@ def parse_instruction(list_of_str, name_str, foodDict):
 	primaryMethod = candidates_in_name[0] if len(candidates_in_name) > 0 else "none"
 	
 
-	cookingTools = ["ladle", "tongs", "spoon", "spatula", "whisk", "knife", "grater", "peeler",
+	cookingTools = ["ladle", "tongs", "spoon", "spatula", "whisk", "knife", "grater", "peeler", "wok",
 	"garlic press", "lemon press", "shears", "can opener", "corkscrew", "thermometer", "measuring cup",
 	"salad spinners", "colander", "cutting board", "bowl", "saucepan", "pan", "baking sheet",
 	"baking dish", "pot", "skillet", "fork", "forks", "oven", "griddle", "microwave", "hot plate",
 	"rice cooker", "baster", "cookie cutter", "pastry brush", "rolling pin", "sieve", "stove", "oven",
-	"grill", "tin", "tongs", "cookie sheet", "plate", "dish", "bag", "foil", "blender", "mixer",
-	"refrigerator", "liner", "toothpick", "cooking spray", "container", "waffle iron", "towel"]
+	"grill", "tin", "tongs", "cookie sheet", "plate", "bag", "foil", "blender", "mixer", "slow cooker",
+	"refrigerator", "liner", "toothpick", "cooking spray", "container", "waffle iron", "towel", 
+	"roasting rack", "deep fryer", "steamer", "meat grinder", "cutting plate", "paper towel"]
 	toolTransDict = dict()
 	toolTransDict["cut"] = "knife"
 	toolTransDict["dice"] = "knife"

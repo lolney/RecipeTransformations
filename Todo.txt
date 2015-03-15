@@ -1,21 +1,24 @@
 TODO:
 - Program interface
 - More work on transformation
-	- Any improvements we can make using the nutritional data, yummy flavors data?
+	- Any improvements we can make using the nutritional data or portions?
 - Subtle improvements:
 	- u'descriptor': u'beef round steak , cut into thin'
-	- http://127.0.0.1:8080/search?q=http%3A%2F%2Fallrecipes.com%2FRecipe%2FLighter-Mexican-Meatloaf%2F
 - UI improvements?
 	- show old ingredients?
 	- add a footer
+- Primary method:
+	- In title?
+	- the method itself
+	- cooking tools present
+	- Is a first word?
 - Good examples:
 	- Asian Beef -> Japanese
+- Instruction updating
 
 In progress:
 - Ingredient replacement (in instructions and ingredients)
 - Ingredient parsing 
-	- Covert fractions to decimal
-	- Order not preserved? (use an ordered dict)
 - Instruction parsing
 - Low-calorie, low-sodium lookups
 
