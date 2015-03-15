@@ -41,7 +41,10 @@ def parseIngredient(string):
 		while VBNnext is not None:
 			VBNlast = VBNnext
 			VBNnext = next(VBNitr,None)
-
+		
+		if VBNlast == len(pos_str) - 1:
+			ing_split = splitIngPhrase(pos_str)
+			return [ing_split[0],ing_split[1],[],[]]
 		prep_split = splitPrepPhraseList(pos_str[:VBNlast + 1],True)
 		ing_split = splitIngPhrase(pos_str[VBNlast + 1:])
 		return [ing_split[0],ing_split[1],prep_split[0],prep_split[1]]
