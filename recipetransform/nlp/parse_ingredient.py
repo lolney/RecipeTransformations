@@ -7,7 +7,7 @@ words that indicate preparation:
 minced lemon zest		<- participle
 pork tenderloin, cut into 1 1/2 inch pieces 	<- participle phrase
 """
-import nltk
+import nltk, re
 
 def convert_ingredient(name,parse_list):
 	quant_list = parseQuantity(parse_list[0])
@@ -21,8 +21,17 @@ def convert_ingredient(name,parse_list):
 	}
 
 def parseQuantity(string):
-	tokens = nltk.word_tokenize(string)
-	return [tokens[0]," ".join(tokens[1:])]
+	tokens = re.split(r"\s+(?=[a-zA-Z])", string)
+	quantity = tokens[0]
+	if re.search(r"\d+/\d+", quantity) is not None:
+		ints = re.split(r"[\s+/]", quantity)
+		if len(ints) == 2:
+			quantity = float(ints[0]) / float(ints[1])
+		elif len(ints) == 3:
+			quantity = float(ints[0]) + (float(ints[1]) / float(ints[2]))
+	elif re.search("[Oo]ne", quantity) is not None:
+		quantity = 1
+	return [float(quantity)," ".join(tokens[1:])]
 
 def parseIngredient(string):
 	string = string.replace(', or more to taste','')

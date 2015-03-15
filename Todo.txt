@@ -8,6 +8,8 @@ TODO:
 - UI improvements?
 	- show old ingredients?
 	- add a footer
+- Good examples:
+	- Asian Beef -> Japanese
 
 In progress:
 - Ingredient replacement (in instructions and ingredients)

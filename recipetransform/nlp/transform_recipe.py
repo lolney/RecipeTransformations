@@ -146,32 +146,35 @@ def ingredientSearchAggregate(ingredient, makeQuery, collection, pipe, query_ind
 
 	try:
 		descriptor_strings = nltk.word_tokenize(ingredient["descriptor"])
-		name_regex = "|".join(nltk.word_tokenize(ingredient["name"]))
+		name_list = nltk.word_tokenize(ingredient["name"])
+		name_regex = "|".join([r"(\b"+n+r"\b)" for n in name_list])
+		print name_regex
 		name = re.compile(name_regex, re.IGNORECASE)
 		name_front = re.compile("^" + ingredient["name"] + ".*", re.IGNORECASE)
+	
+		# try name and descriptors
+		q = makeQuery(name)
+		if len(descriptor_strings) == 0:
+			query = makeQuery(ingredient["name"])
+		else:
+			descriptors = [re.compile(descriptor, re.IGNORECASE) for descriptor in descriptor_strings]
+			query = {"$and": ([q] + [makeQuery(descriptor) for descriptor in descriptors])}
+		results = doAggregation(pipe, query, collection, query_index)
+		
+		"""
+		# try just name (first the front of the string)
+		query = makeQuery(name_front)
+		if len(results) == 0:
+			results = doAggregation(pipe, query, collection, query_index)
+		"""
+
+		# then in the remainder
+		if len(results) == 0:
+			results = doAggregation(pipe, q, collection, query_index)
+
 	except:
 		print "compile error: ", ingredient
 		return []
-
-	# try name and descriptors
-	q = makeQuery(name)
-	if len(descriptor_strings) == 0:
-		query = makeQuery(ingredient["name"])
-	else:
-		descriptors = [re.compile(descriptor, re.IGNORECASE) for descriptor in descriptor_strings]
-		query = {"$and": ([q] + [makeQuery(descriptor) for descriptor in descriptors])}
-	results = doAggregation(pipe, query, collection, query_index)
-	
-	"""
-	# try just name (first the front of the string)
-	query = makeQuery(name_front)
-	if len(results) == 0:
-		results = doAggregation(pipe, query, collection, query_index)
-	"""
-
-	# then in the remainder
-	if len(results) == 0:
-		results = doAggregation(pipe, q, collection, query_index)
 
 	return results
 
@@ -211,6 +214,7 @@ def getFoodGroup(ingredient):
 		results = ingredientSearchAggregate(ingredient, makeQuery, "food_groups", pipe, 0)
 		if len(results) > 0:
 			food_group = results[0]['_id']
+			print results
 			print food_group
 
 
@@ -329,6 +333,22 @@ def testFoodGroups():
 	},
 	{
 	"name":"soy sauce",
+	"descriptor": ""
+	},
+	{
+	"name":"sugar",
+	"descriptor": "brown"
+	},
+	{
+	"name":"fillets",
+	"descriptor": ""
+	},
+	{
+	"name":"fillet",
+	"descriptor": ""
+	},
+	{
+	"name":"ice",
 	"descriptor": ""
 	}]
 	

@@ -26,7 +26,6 @@ def getIngredients(html):
 				ingDict[ingParse[0]] = []
 
 			ingDict[ingParse[0]].append([ingredient_amount, ingParse[1],ingParse[2],ingParse[3]])
-			#parsed_ingred = parse_ingredient(ingredient_amount, ingredient_name)
 			
 		except AttributeError: # expected, because some table elements contain no ingredients
 			pass

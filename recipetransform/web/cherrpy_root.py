@@ -58,8 +58,8 @@ def getIngredientStrings(ingredients):
 			preps.append(ingredient["preparation"][i] + " " + ingredient["prep_descriptor"][i])
 		print ingredient
 		ingredient["preparation"] = preps"""
-		str = " ".join([ingredient["quantity"], ingredient["measurement"], ingredient["descriptor"], ingredient["name"]])
-		ingredient_strings.append(str)
+		string = " ".join([str(ingredient["quantity"])[:4], ingredient["measurement"], ingredient["descriptor"], ingredient["name"]])
+		ingredient_strings.append(string)
 
 	return ingredient_strings
 	
