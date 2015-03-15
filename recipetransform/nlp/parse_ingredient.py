@@ -21,6 +21,7 @@ def convert_ingredient(name,parse_list):
 	}
 
 def parseQuantity(string):
+	string = re.sub(r"\(.*\)","",string)
 	tokens = re.split(r"\s+(?=[a-zA-Z])", string)
 	quantity = tokens[0]
 	if re.search(r"\d+/\d+", quantity) is not None:

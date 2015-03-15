@@ -14,6 +14,14 @@ and the name, which will be important in deciding the primary cooking method
 
 import sys
 import nltk
+import re
+
+
+def regexSearch(cookingMethods, text):
+
+	regex = "|".join([r'\b' + method for method in cookingMethods])
+	regex = re.compile(regex, re.IGNORECASE)
+	return re.findall(regex, text)
 
 
 def parse_instruction(list_of_str, name_str, foodDict):
@@ -58,25 +66,32 @@ def parse_instruction(list_of_str, name_str, foodDict):
 	firstWord1 = list(set(firstWord))
 	#print("\nAll methods:\n" + str(firstWord1))
 
-	cookingMethods = ["bake", "baked", "barbecue", "barbecued", "boil", "boiled", "braise", "braised", "broil", "broiled", "fry", "fried" "grill", "grilled" "microwave", "microwaved", "poach", "poached", "roast", "roasted", "saute", "sauted", "smoke", "smoked", "steam", "steamed"]
-	primaryMethod = "none"
-	for item in firstWord:
-		if item.lower() in cookingMethods:
-			primaryMethod = item.lower()
-	i = 0
-	for item in name:
-		if item.lower() == "slow":
-			i = 0
-		if i == 1 and item.lower() == "cooker":
-			primaryMethod = "slow cooker"
-		if item.lower() in cookingMethods:
-			primaryMethod = item.lower()
-		i = i + 1
+	cookingMethods = ["bake", "baked", "barbecue", "barbecued", "boil", "boiled", "braise", "braised", "broil", "broiled",
+	 "fry", "fried" "grill", "grilled" "microwave", "microwaved", "poach", "poached", "roast", "roasted", "saute", "sauted",
+	 "smoke", "smoked", "steam", "steamed", "stir-fry", "season", "stir", "drain", "arrange", "cool", "simmer", "rinse",
+	 "remove", "preheat", "mix", "whip", "mince", "knead", "grind", "glaze", "combine", "cut", "dice", "chop", "peel",
+	 "cover", "beat", "grate", "serve", "form", "pour", "dissolve", "whisk", "blend", "add", "place", "heat", "tenderize",
+	 "mash", "set", "insert", "cream", "spoon", "brush", "soak", "sift", "toast", "sprinkle", "fold", "drop",
+	 "transfer", "turn", "shake", "mince", "crush", "squeeze", "flip","melt","coat", "spread", "marinate", "barbeque",
+	 "spray", r"fill\b", "clean", r"reduce\b", "chill", "garnish", "warm", r"crumble\b", "flatten", "knead", "divide\b"]
+	
+	# Search for cooking methods
+	text = " ".join([name_str] + instruction)
+	methods_found = regexSearch(cookingMethods, text)
+	methods_found = [mth.lower() for mth in methods_found]
+	primary_method_candidates = set(firstWord).intersection(set(methods_found))
 
+	candidates_in_name = regexSearch(primary_method_candidates, name_str)
+	primaryMethod = candidates_in_name[0] if len(candidates_in_name) > 0 else "none"
 	
 
-	cookingTools = ["ladle", "tongs", "spoon", "spatula", "whisk", "knife", "grater", "peeler", "garlic press", "lemon press", "shears", "can opener", 
-	"corkscrew", "thermometer", "measuring cups", "salad spinners", "colander", "cutting board", "bowl", "saucepan", "pan", "baking sheet", "baking dish", "pot", "skillet", "fork", "forks", "oven", "griddle"]
+	cookingTools = ["ladle", "tongs", "spoon", "spatula", "whisk", "knife", "grater", "peeler",
+	"garlic press", "lemon press", "shears", "can opener", "corkscrew", "thermometer", "measuring cup",
+	"salad spinners", "colander", "cutting board", "bowl", "saucepan", "pan", "baking sheet",
+	"baking dish", "pot", "skillet", "fork", "forks", "oven", "griddle", "microwave", "hot plate",
+	"rice cooker", "baster", "cookie cutter", "pastry brush", "rolling pin", "sieve", "stove", "oven",
+	"grill", "tin", "tongs", "cookie sheet", "plate", "dish", "bag", "foil", "blender", "mixer",
+	"refrigerator", "liner", "toothpick", "cooking spray", "container", "waffle iron", "towel"]
 	toolTransDict = dict()
 	toolTransDict["cut"] = "knife"
 	toolTransDict["dice"] = "knife"
@@ -94,29 +109,22 @@ def parse_instruction(list_of_str, name_str, foodDict):
 	toolTransDict["refrigerate"] = "refrigerator"
 	toolTransDict["measure"] = "measuring cup"
 	
-	tools = []
-	i = 0
-	j = 0
+	tools = regexSearch(cookingTools, " ".join(instruction))
+	tools = [tool.lower() for tool in tools]
+
 	for instr in instruction:
 		for item in nltk.word_tokenize(instr):
-			if item.lower() == "baking":
-				i = 0
-			if i == 1 and item.lower() == "sheet":
-				tools.append("baking sheet")
-			if i == 1 and item.lower() == "dish":
-				tools.append("baking dish")
-			if item.lower() == "slow":
-				j = 0
-			if j == 1 and item.lower() == "cooker":
-				tools.append("slow cooker")
-				primaryMethod = "slow cooker"
-			if item.lower() in cookingTools:
-				tools.append(item.lower())
-			elif item.lower() in toolTransDict.keys():
+			if item.lower() in toolTransDict.keys():
 				tools.append(toolTransDict[item.lower()])
-			i = i + 1
-			j = j + 1
 
+
+	i = 0
+	for item in name:
+		if item.lower() == "slow":
+			i = 0
+		if i == 1 and item.lower() == "cooker":
+			primaryMethod = "slow cooker"
+		i = i + 1
 
 	if primaryMethod == "none" and "cook" in firstWord:
 		primaryMethod = "cook"
@@ -225,21 +233,15 @@ def parse_instruction(list_of_str, name_str, foodDict):
 	#print("Steps:")
 	#print(stepList)
 
-	instrDict = dict()
-	instrDict["allMethods"] = firstWord1
-	instrDict["primaryMethod"] = primaryMethod
-	instrDict["tools"] = tools
-	instrDict["steps"] = stepList
-
-	print("\nPrimary Method:\n" + instrDict["primaryMethod"])
-	print("All Methods:\n" + str(instrDict["allMethods"]))
-	print("Tools:\n" + str(instrDict["tools"]))
-	print("Steps:\n" + str(instrDict["steps"]))
-
-
-	return {
-		"cooking method" : primaryMethod,
-		"secondary cooking methods" : firstWord1,
+	instrDict =  {
+		"cooking method" : primaryMethod.lower(),
+		"secondary cooking methods" : list(set(firstWord1 + methods_found)),
 		"cooking tools" : tools,
 		"cook steps" : stepList
 	}
+
+	for key in instrDict:
+		print key + ": ", instrDict[key]
+
+	return instrDict
+

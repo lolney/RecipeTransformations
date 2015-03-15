@@ -3,7 +3,7 @@ import recipetransform.nlp.parsing as parsing
 
 
 def get_allrecipes_urls():
-	url = "http://allrecipes.com/recipes/main.aspx?Page=1#recipes"
+	url = "http://allrecipes.com/recipes/main.aspx?Page=" + str(random.randint(1,10))
 	html = parsing.parse_raw(url);
 
 	link_containers = html.body.findAll(id='divGridItemWrapper')
