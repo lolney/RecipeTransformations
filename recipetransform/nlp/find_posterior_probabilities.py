@@ -89,10 +89,12 @@ def parse(str):
 
 	try:
 		ingparse = parseIngredient(str)
-		print ingparse[0], ingparse[1]
 	except IndexError:
 		print "Index error"
 		print str
+
+	if type(ingparse[0]) == type([]) or type(ingparse[1]) == type([]):
+		print "list detected: ", str, ingparse
 
 	return {
 		"name":	ingparse[0],

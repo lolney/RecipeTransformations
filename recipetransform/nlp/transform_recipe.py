@@ -137,11 +137,14 @@ def ingredientSearch(ingredient, makeQuery, collection):
 
 	db = tools.DBconnect()
 
-
-	descriptor_strings = nltk.word_tokenize(ingredient["descriptor"])
-	descriptors = [re.compile(descriptor, re.IGNORECASE) for descriptor in descriptor_strings]
-	name = re.compile(ingredient["name"], re.IGNORECASE)
-	name_front = re.compile("^" + ingredient["name"] + ".*", re.IGNORECASE)
+	try:
+		descriptor_strings = nltk.word_tokenize(ingredient["descriptor"])
+		descriptors = [re.compile(descriptor, re.IGNORECASE) for descriptor in descriptor_strings]
+		name = re.compile(ingredient["name"], re.IGNORECASE)
+		name_front = re.compile("^" + ingredient["name"] + ".*", re.IGNORECASE)
+	except:
+		print "compile error: ", ingredient
+		return []
 
 	q = makeQuery(name)
 	# try name and descriptors
@@ -276,7 +279,7 @@ def transform_recipe(parsed_ingredients, parsed_instructions, transform_category
 		if transform_type in ["calories","sodium"] and transform_category in ["low","high"]:
 			result = ht.transformHealthy(parsed_ingredients, transform_category, transform_type)
 		else:
-			raise ValueError("unexpected transform_type")
+			raise ValueError("unexpected transform_type: " + transform_type + ", " + transform_category)
 
 	print result
 	return result

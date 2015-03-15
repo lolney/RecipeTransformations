@@ -12,6 +12,8 @@ TODO:
 In progress:
 - Ingredient replacement (in instructions and ingredients)
 - Ingredient parsing 
+	- Covert fractions to decimal
+	- Order not preserved? (use an ordered dict)
 - Instruction parsing
 - Low-calorie, low-sodium lookups
 

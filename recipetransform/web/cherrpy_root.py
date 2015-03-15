@@ -119,7 +119,7 @@ class Root(object):
 
 		name, instructions, ingredients = getRecipe(kwargs["q"])
 
-		cat = kwargs["transform_category"]
+		cat = kwargs["transform_category"].lower()
 		typ = kwargs["transform_type"].lower()
 		
 		ingredients, instructions = transform_recipe(ingredients, instructions, cat, typ)
