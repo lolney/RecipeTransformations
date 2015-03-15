@@ -59,6 +59,7 @@ def splitIngPhrase(pos_str):
 		del pos_str[-1]
 	return [pos_str[-1][0]," ".join([x[0] for x in pos_str[:-1]]) + parendesc]
 
+
 def splitPrepPhraseList(pos_str,prepended):
 	commaitr = (i for i,v in enumerate(pos_str) if v == (',',','))
 	commapos = next(commaitr,None)

@@ -68,17 +68,18 @@ def parseHtmlforProgramInterface(url):
 	parsed_html = parse_raw(url)
 	ingDict = getIngredients(parsed_html)
 	instructions = getInstructions(parsed_html)
+	name = getName(parsed_html)
 
 	ingredients = []
 	for x in ingDict.keys():
 		for y in ingDict[x]:
 			ingredients.append(convert_ingredient(x,y))
-	parsed_instructions = parse_instruction(ingredients, ingDict)
+	parsed_instructions = parse_instruction(instructions, name, ingDict)
 
 	return {
 		"ingredients" : ingredients,
-		"primary cooking method" : parsed_instructions["primary cooking method"],
-		"cooking methods" : parsed_instructions["cooking methods"],
+		"primary cooking method" : parsed_instructions["cooking method"],
+		"cooking methods" : parsed_instructions["secondary cooking methods"],
 		"cooking tools" : parsed_instructions["cooking tools"]
 	}
 

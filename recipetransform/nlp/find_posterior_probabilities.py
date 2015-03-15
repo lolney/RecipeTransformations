@@ -1,7 +1,7 @@
 import pymongo, nltk, re
 import recipetransform.tools.database as tools
 import recipetransform.tools.yummly as yum
-from recipetransform.nlp.parse_ingredient import parse_yummly_ingredient
+from recipetransform.nlp.parse_ingredient import parseIngredient, convert_ingredient
 from recipetransform.nlp.transform_recipe import getFoodGroup
 from recipetransform.tools.dictionary_ops import *
 from recipetransform.tools.database import encode, decode
@@ -13,7 +13,6 @@ def findWordCountForRecipe(cats, ingredients, freqdists):
 	cats -  a list of strings
 	ingredients - a list of ingredient dictionaries
 	"""
-	ingredients = sanitize(ingredients)
 	for category in cats:
 		freqdist = freqdists[category]
 		for ingredient in ingredients:
@@ -54,9 +53,10 @@ def findPosteriors(ids, download_function, penalize_below_n=10):
 	freqdists = {}
 	for id in ids: # loop over recipes
 		ingredients = download_function(id)
+		ingredients = sanitize(ingredients)
 		cats = ids[id]
 		# TODO: write parser
-		parsed_ingredients = [parse_yummly_ingredient(ingredient) for ingredient in ingredients]
+		parsed_ingredients = [parse(ingredient) for ingredient in ingredients]
 		# add all the categories to the freqdists
 		freqdists = setDict(cats, freqdists, {})
 		# set word counts for each word in each category
@@ -83,6 +83,21 @@ def findPosteriors(ids, download_function, penalize_below_n=10):
 			posteriors[word][cat] = (float(freqdists[cat][word]) / float(word_counts[word])) / penalty
 
 	return posteriors
+
+
+def parse(str):
+
+	try:
+		ingparse = parseIngredient(str)
+		print ingparse[0], ingparse[1]
+	except IndexError:
+		print "Index error"
+		print str
+
+	return {
+		"name":	ingparse[0],
+		"descriptor":	ingparse[1]
+	}
 
 
 def sanitize(lst):
@@ -164,7 +179,6 @@ def addFoodGroups(ingredients):
 
 
 def main():
-
 
 	ids_to_cats, ids_to_ingredients = yum.idsToCategories()
 	get_ingredients = lambda id : ids_to_ingredients[id]
