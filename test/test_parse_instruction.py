@@ -8,6 +8,14 @@ def testPrimaryMethod():
 		"method":"cook"
 	},
 	{
+		"url":"http://allrecipes.com/Recipe/Asian-Beef-with-Snow-Peas",
+		"method":"stir-fry"
+	},
+	{
+		"method":"fried",
+		"url":"http://allrecipes.com/Recipe/Fried-Cabbage"
+	},
+	{
 		"method":"simmer",
 		"url":"http://allrecipes.com/Recipe/Catherines-Spicy-Chicken-Soup/"
 	},
@@ -71,3 +79,12 @@ def testPrimaryMethod():
 
 	print "=== Accuracy"
 	print "===", count/float(len(urls))
+
+
+def main():
+
+	testPrimaryMethod()
+
+
+if __name__ == "__main__":
+	main()

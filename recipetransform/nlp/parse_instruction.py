@@ -17,16 +17,20 @@ import nltk
 import re
 
 
-def regexSearch(cookingMethods, text):
+def regexSearch(keywords, text):
 
-	regex = "|".join([r'\b' + method for method in cookingMethods])
+	regex = "|".join([r'\b' + method for method in keywords])
 	regex = re.compile(regex, re.IGNORECASE)
 	return re.findall(regex, text)
 
 
 def primaryMethodDecisionTree(firstWord, methods_found, instructions, tools, name_str):
+	"""
+	Classifiers are expensive to train. Here are some heuristics that I think approximate
+	how a well-trained decision tree or maximum entropy classifier would look
+	"""
 	
-	primaryMethods = ["bake","grill","simmer","cook","slow cook","fry","roast","saute","broil"]
+	primaryMethods = ["bake","grill","simmer","cook","slow cook","stir-fry","fry","roast","saute","broil"]
 	primary_method_candidates = set(primaryMethods).intersection(set(methods_found))
 	candidates_in_name = regexSearch(methods_found, name_str)
 
@@ -135,14 +139,15 @@ def parse_instruction(list_of_str, name_str, foodDict):
 	#print("\nAll methods:\n" + str(firstWord1))
 
 	cookingMethods = ["bake", "baked", "barbecue", "barbecued", "boil", "boiled", "braise", "braised", "broil", "broiled",
-	 "fry", "fried", "grill", "grilled" "microwave", "microwaved", "poach", "poached", "roast", "roasted", "saute", "sauted",
+	 "(?<!stir[- ])fry", "fried", "grill", "grilled" "microwave", "microwaved", "poach", "poached", "roast", "roasted", "saute", "sauted",
 	 "smoke", "smoked", "steam", "steamed", r"stir[ -]fry", "season", "stir", "drain", "arrange", "cool", "simmer", "rinse",
 	 "remove", "preheat", "mix", "whip", "mince", "knead", "grind", "glaze", "combine", "cut", "dice", "chop", "peel",
 	 "cover", "beat", "grate", "serve", "form", "pour", "dissolve", "whisk", "blend", "add", "place", "heat", "tenderize",
 	 "mash", "set", "insert", "cream", "spoon", "brush", "soak", "sift", "(?<!french )toast", "sprinkle", "fold", "drop",
 	 "transfer", "turn", "shake", "mince", "crush", "squeeze", "flip","melt","coat", "spread", "marinate", "barbeque",
 	 "spray", r"fill\b", "clean", r"reduce\b", "chill", "garnish", "warm", r"crumble\b", "flatten", "knead", r"divide\b",
-	 "bring", "slow cook", "refrigerate", "split", r"cook\b", "peel", "toss", "puree", "pulse"]
+	 "bring", "slow cook", "refrigerate", "split", r"cook\b", "peel", "toss", "puree", "pulse", "spoon off", "deglaze",
+	 "pierce",r"tie\b","scatter","pat\b","scrape"]
 	
 	# Search for cooking methods
 	text = " ".join([name_str] + instruction)
@@ -158,7 +163,8 @@ def parse_instruction(list_of_str, name_str, foodDict):
 	"rice cooker", "baster", "cookie cutter", "pastry brush", "rolling pin", "sieve", "stove", "oven",
 	r"(?<=the )grill", "tin", "tongs", "cookie sheet", "plate", "bag", "foil", "blender", "mixer", "slow cooker",
 	"refrigerator", "liner", "toothpick", "cooking spray", "container", "waffle iron", "towel", 
-	"roasting rack", "deep fryer", "steamer", "meat grinder", "cutting plate", "paper towel", "Dutch oven","stockpot"]
+	"roasting rack", "deep fryer", "steamer", "meat grinder", "cutting plate", "paper towel", "Dutch oven",
+	"stockpot","sauceboat","skewer","string"]
 	toolTransDict = dict()
 	toolTransDict["cut"] = "knife"
 	toolTransDict["dice"] = "knife"

@@ -86,7 +86,7 @@ def parserProgramInterface(url):
 
 def main(url="http://allrecipes.com/Recipe/Easy-Garlic-Broiled-Chicken/"):
 
-	print testPrimaryMethod()
+	print parserProgramInterface()
 
 
 if __name__ == "__main__":
