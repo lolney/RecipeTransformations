@@ -147,7 +147,7 @@ def parse_instruction(list_of_str, name_str, foodDict):
 	 "transfer", "turn", "shake", "mince", "crush", "squeeze", "flip","melt","coat", "spread", "marinate", "barbeque",
 	 "spray", r"fill\b", "clean", r"reduce\b", "chill", "garnish", "warm", r"crumble\b", "flatten", "knead", r"divide\b",
 	 "bring", "slow cook", "refrigerate", "split", r"cook\b", "peel", "toss", "puree", "pulse", "spoon off", "deglaze",
-	 "pierce",r"tie\b","scatter","pat\b","scrape"]
+	 "pierce",r"tie\b","scatter","pat\b","scrape","trim"]
 	
 	# Search for cooking methods
 	text = " ".join([name_str] + instruction)
