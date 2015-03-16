@@ -24,6 +24,74 @@ def regexSearch(cookingMethods, text):
 	return re.findall(regex, text)
 
 
+def primaryMethodDecisionTree(firstWord, methods_found, instructions, tools, name_str):
+	
+	primaryMethods = ["bake","grill","simmer","cook","slow cook","fry","roast","saute","broil"]
+	primary_method_candidates = set(primaryMethods).intersection(set(methods_found))
+	candidates_in_name = regexSearch(methods_found, name_str)
+
+	# first check in name
+	if len(candidates_in_name) > 0:
+		# try to disambiguate by looking for primary methods
+		if len(candidates_in_name) > 1:
+			first_word_primaries = set(firstWord).intersection(set(primaryMethods))
+			if len(first_word_primaries) > 0:
+				return first_word_primaries[0]
+		
+		return candidates_in_name[0]
+
+	# next, check for keywords
+	if "oven" in tools:
+		if "bake" in methods_found:
+			return "bake"
+	if "grill" in tools:
+		if "grill" in methods_found:
+			return "grill"
+
+	# next, check for temperature
+	temperatureRegex = "(medium[- ]low)|((?<!medium[- ])low)|(medium(?![- ]low))"
+	regex = re.compile(temperatureRegex, re.IGNORECASE)
+	matches = regex.search(instructions)
+
+	med_low = matches.group(0) if matches else None
+	low = matches.group(1) if matches else None
+	med = matches.group(2) if matches else None
+
+	# look for primary methods in the first words
+	filtered_candidates = set(firstWord).intersection(primary_method_candidates)
+	if len(filtered_candidates) > 0:
+		if len(filtered_candidates) > 1:
+			if med_low or low:
+				if "slow cook" in methods_found:
+					return "slow cook"
+				if "simmer" in methods_found:
+					return "simmer"
+			if med and not (low or med_low):
+				if "cook" in methods_found:
+					return "cook"
+
+		return list(filtered_candidates)[0]
+
+	# finally, look for primary methods generally
+	if len(primary_method_candidates) > 0:
+		if len(filtered_candidates) > 1:
+			if med_low or low:
+				if "slow cook" in methods_found:
+					return "slow cook"
+				if "simmer" in methods_found:
+					return "simmer"
+			if med and not (low or med_low):
+				if "cook" in methods_found:
+					return "cook"
+
+		return list(primary_method_candidates)[0]
+
+	# if nothing succeeds, return none
+	return "none"
+
+
+
+
 def parse_instruction(list_of_str, name_str, foodDict):
 	
 	instruction = list_of_str
@@ -67,23 +135,20 @@ def parse_instruction(list_of_str, name_str, foodDict):
 	#print("\nAll methods:\n" + str(firstWord1))
 
 	cookingMethods = ["bake", "baked", "barbecue", "barbecued", "boil", "boiled", "braise", "braised", "broil", "broiled",
-	 "fry", "fried" "grill", "grilled" "microwave", "microwaved", "poach", "poached", "roast", "roasted", "saute", "sauted",
+	 "fry", "fried", "grill", "grilled" "microwave", "microwaved", "poach", "poached", "roast", "roasted", "saute", "sauted",
 	 "smoke", "smoked", "steam", "steamed", r"stir[ -]fry", "season", "stir", "drain", "arrange", "cool", "simmer", "rinse",
 	 "remove", "preheat", "mix", "whip", "mince", "knead", "grind", "glaze", "combine", "cut", "dice", "chop", "peel",
 	 "cover", "beat", "grate", "serve", "form", "pour", "dissolve", "whisk", "blend", "add", "place", "heat", "tenderize",
-	 "mash", "set", "insert", "cream", "spoon", "brush", "soak", "sift", "toast", "sprinkle", "fold", "drop",
+	 "mash", "set", "insert", "cream", "spoon", "brush", "soak", "sift", "(?<!french )toast", "sprinkle", "fold", "drop",
 	 "transfer", "turn", "shake", "mince", "crush", "squeeze", "flip","melt","coat", "spread", "marinate", "barbeque",
 	 "spray", r"fill\b", "clean", r"reduce\b", "chill", "garnish", "warm", r"crumble\b", "flatten", "knead", r"divide\b",
-	 "bring", "slow cook", "refrigerate", "split", "cook", "peel", "toss", "puree", "pulse"]
+	 "bring", "slow cook", "refrigerate", "split", r"cook\b", "peel", "toss", "puree", "pulse"]
 	
 	# Search for cooking methods
 	text = " ".join([name_str] + instruction)
 	methods_found = regexSearch(cookingMethods, text)
 	methods_found = [mth.lower() for mth in methods_found]
-	primary_method_candidates = set(firstWord).intersection(set(methods_found))
-
-	candidates_in_name = regexSearch(primary_method_candidates, name_str)
-	primaryMethod = candidates_in_name[0] if len(candidates_in_name) > 0 else "none"
+	
 	
 
 	cookingTools = ["ladle", "tongs", "spoon", "spatula", "whisk", "knife", "grater", "peeler", "wok",
@@ -91,9 +156,9 @@ def parse_instruction(list_of_str, name_str, foodDict):
 	"salad spinners", "colander", "cutting board", "bowl", "saucepan", "pan", "baking sheet",
 	"baking dish", "pot", "skillet", "fork", "forks", "oven", "griddle", "microwave", "hot plate",
 	"rice cooker", "baster", "cookie cutter", "pastry brush", "rolling pin", "sieve", "stove", "oven",
-	"grill", "tin", "tongs", "cookie sheet", "plate", "bag", "foil", "blender", "mixer", "slow cooker",
+	r"(?<=the )grill", "tin", "tongs", "cookie sheet", "plate", "bag", "foil", "blender", "mixer", "slow cooker",
 	"refrigerator", "liner", "toothpick", "cooking spray", "container", "waffle iron", "towel", 
-	"roasting rack", "deep fryer", "steamer", "meat grinder", "cutting plate", "paper towel"]
+	"roasting rack", "deep fryer", "steamer", "meat grinder", "cutting plate", "paper towel", "Dutch oven","stockpot"]
 	toolTransDict = dict()
 	toolTransDict["cut"] = "knife"
 	toolTransDict["dice"] = "knife"
@@ -120,21 +185,12 @@ def parse_instruction(list_of_str, name_str, foodDict):
 				tools.append(toolTransDict[item.lower()])
 
 
-	i = 0
-	for item in name:
-		if item.lower() == "slow":
-			i = 0
-		if i == 1 and item.lower() == "cooker":
-			primaryMethod = "slow cooker"
-		i = i + 1
-
-	if primaryMethod == "none" and "cook" in firstWord:
-		primaryMethod = "cook"
-
 	#print("Primary method:\n" + str(primaryMethod))
 	tools = list(set(tools))
 	#print("Tools:\n" + str(tools))
 
+	# Find primary method
+	primaryMethod = primaryMethodDecisionTree(firstWord, methods_found, " ".join(instruction), tools, name_str)
 
 	#STEPS
 
@@ -241,9 +297,9 @@ def parse_instruction(list_of_str, name_str, foodDict):
 		"cooking tools" : tools,
 		"cook steps" : stepList
 	}
-
+	"""
 	for key in instrDict:
-		print key + ": ", instrDict[key]
+		print key + ": ", instrDict[key]"""
 
 	return instrDict
 

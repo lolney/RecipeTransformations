@@ -10,8 +10,12 @@ TODO:
 - Primary method:
 	- In title?
 	- the method itself
-	- cooking tools present
+	- cooking tools present (oven, pan, etc., are telling)
 	- Is a first word?
+	- heat (medium-low, low are characteristic of simmer; medium is characteristic of “cook”, low of slow cook)
+	- bake is common - usually involves preheating an oven
+	- preparation time - long for slow cook
+	- make a list of primary methods
 - Good examples:
 	- Asian Beef -> Japanese
 - Instruction updating

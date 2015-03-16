@@ -73,7 +73,7 @@ class Root(object):
 	@cherrypy.expose
 	def random(self):
 		url = allrecipes.random_recipe()
-		raise cherrypy.HTTPRedirect("/search?q=" + urllib.quote_plus(url))
+		raise cherrypy.HTTPRedirect("/search?q=" + url)
 
 	@cherrypy.expose
 	def recipes(self, name="Cherry Pie"):
