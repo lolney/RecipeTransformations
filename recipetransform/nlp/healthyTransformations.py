@@ -1,6 +1,5 @@
 import testParsedRecipe as test
 from pprint import pprint
-
 import recipetransform.tools.database as tools
 import pymongo
 import re
@@ -9,25 +8,26 @@ import recipetransform.tools.database as tools
 from recipetransform.tools.database import encode, decode
 from recipetransform.tools.dictionary_ops import *
 
-def transformHealthy(parsedIngs, transformCat, transformType):
+def transformHealthy(parsedIngs, parsedIns, transformCat, transformType):
     if (transformCat== "calories"):
         if(transformType=="low"):
-            transformedIngs = transform(parsedIngs, "Energy", 1)
+            (transformedIngs, transIns) = transform(parsedIngs, "Energy", 1, parsedIns)
         else:
-            transformedIngs = transform(parsedIngs, "Energy", -1)
+            (transformedIngs, transIns) = transform(parsedIngs, "Energy", -1, parsedIns)
     else:
         if(transformType=="low"):
-            transformedIngs = transform(parsedIngs, "Sodium,Na", 1)
+            (transformedIngs, transIns) = transform(parsedIngs, "Sodium,Na", 1, parsedIns)
         else:
-            transformedIngs = transform(parsedIngs, "Sodium,Na", -1)
-    return transformedIngs
+            (transformedIngs, transIns) = transform(parsedIngs, "Sodium,Na", -1, parsedIns)
+    return (transformedIngs, transIns)
 
-def transform(parsedIngs, cat, sort):
+def transform(parsedIngs, cat, sort, parsedIns):
     """
     Get replacement ingredients
     """
     # Search db for each ingredients in the
     transRec = []
+    newIns = parsedIns
     for ing in parsedIngs:
         newIng = {}
         replacement = getReplacement(ing["name"], cat, sort)
@@ -37,9 +37,11 @@ def transform(parsedIngs, cat, sort):
 
         newIng["name"] = name
         newIng["descriptor"] = desc
-
+        
+        newIns = upateInstructionsHealthy(newIns, ing, newIng);
         transRec.append(newIng)
-    return transRec
+
+    return (transRec, newIns)
 
 def getReplacement(ingredient, cat, sort):
     """
@@ -65,3 +67,6 @@ def queryDB(pipeline):
     db = tools.DBconnect()
 
     return db["nutrients"].aggregate(pipeline)
+
+def updateInstructionsHealthy(instructions, oldIng, newIng):
+    return instructions
