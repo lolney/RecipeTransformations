@@ -8,17 +8,19 @@ import recipetransform.tools.database as tools
 from recipetransform.tools.database import encode, decode
 from recipetransform.tools.dictionary_ops import *
 
-def transformHealthy(parsedIngs, parsedIns, transformCat, transformType):
+def transformHealthy(parsedIngs, parsedIns, transformType, transformCat):
+    transformedIngs = []
+    transIns= []
     if (transformCat== "calories"):
-        if(transformType=="low"):
+        if(transformType=="Low"):
             (transformedIngs, transIns) = transform(parsedIngs, "Energy", 1, parsedIns)
-        else:
+        elif (transformType=="High"):
             (transformedIngs, transIns) = transform(parsedIngs, "Energy", -1, parsedIns)
-    else:
-        if(transformType=="low"):
-            (transformedIngs, transIns) = transform(parsedIngs, "Sodium,Na", 1, parsedIns)
-        else:
-            (transformedIngs, transIns) = transform(parsedIngs, "Sodium,Na", -1, parsedIns)
+    elif (transformCat=="sodium"):
+        if(transformType=="Low"):
+            (transformedIngs, transIns) = transform(parsedIngs, "Sodium, Na", 1, parsedIns)
+        elif (transformType=="High"):
+            (transformedIngs, transIns) = transform(parsedIngs, "Sodium, Na", -1, parsedIns)
     return (transformedIngs, transIns)
 
 def transform(parsedIngs, cat, sort, parsedIns):
@@ -26,19 +28,27 @@ def transform(parsedIngs, cat, sort, parsedIns):
     Get replacement ingredients
     """
     # Search db for each ingredients in the
-    transRec = []
+    transRec =[]
     newIns = parsedIns
     for ing in parsedIngs:
         newIng = {}
-        replacement = getReplacement(ing["name"], cat, sort)
+        (replacement, energy, sodium) = getReplacement(ing["name"], cat, sort)
 
         #Split into name and descriptors
         (name, delim, desc) = replacement.partition(',')
 
-        newIng["name"] = name
+        if(cat =="Energy" and energy != '0'):
+            newIng["name"] = name + ' ('+str(energy)+' kcal)'
+        elif (sodium != '0'):
+            newIng["name"] = name + ' ('+str(sodium)+' g)'
+        else:
+            newIng["name"] = ing["name"]
+            
         newIng["descriptor"] = desc
+        newIng["quantity"] = ing["quantity"]
+        newIng["measurement"] = ing["measurement"]
         
-        newIns = upateInstructionsHealthy(newIns, ing, newIng);
+        newIns = updateInstructionsHealthy(newIns, ing, newIng);
         transRec.append(newIng)
 
     return (transRec, newIns)
@@ -54,11 +64,12 @@ def getReplacement(ingredient, cat, sort):
 
     pipeline = list(pipe)
     results = queryDB(pipe)
-    
+
+
     if (results["result"] !=[]):
-        return results["result"][0]["name"]
+        return (results["result"][0]["name"], results["result"][0]["Energy"], results["result"][0]["Sodium, Na"])
     else:
-        return ingredient
+        return (ingredient,'0','0')
 
 def queryDB(pipeline):
     """
