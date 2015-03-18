@@ -32,18 +32,18 @@ parsedRecipe = {
 			"prep-description": ""
 		},
 		{
-			"name": "bell pepper",
+			"name": "pepper",
 			"quantity": 1,
 			"measurement": "",
-			"descriptor": "green",
+			"descriptor": "green, bell",
 			"preperation": "seeded, chopped",
 			"prep-description": ""
 		},
 		{
-			"name": "bell pepper",
+			"name": "pepper",
 			"quantity": 1,
 			"measurement": "",
-			"descriptor": "red",
+			"descriptor": "red, bell",
 			"preperation": "seeded, chopped",
 			"prep-description": ""
 		},
@@ -88,19 +88,19 @@ parsedRecipe = {
 			"prep-description": ""
 		},
 		{
-			"name": "pepper sauce",
+			"name": "sauce",
 			"quantity": 0.5,
 			"measurement": "teaspooon",
-			"descriptor": "hot",
+			"descriptor": "hot pepper",
 			"preperation": "",
 			"prep-description": ""
 		},
 		{
-			"name": "black pepper",
+			"name": "pepper",
 			"quantity": 0.5,
 			"measurement": "teaspooon",
 			"descriptor": "",
-			"preperation": "ground",
+			"preperation": "ground, black",
 			"prep-description": ""
 		},
 		{
@@ -176,10 +176,10 @@ parsedRecipe2 = {
 
 parsedRecipe3 = {
 	"ingredients": [{
-			"name": "soy sauce",
+			"name": "sauce",
 			"quantity": 3,
 			"measurement": "tablespoons",
-			"descriptor": "",
+			"descriptor": "soy",
 			"preperation": "",
 			"prep-description": ""
 		},
@@ -208,10 +208,10 @@ parsedRecipe3 = {
 			"prep-description": ""
 		},
 		{
-			"name": "ginger root",
+			"name": "root",
 			"quantity": 1,
 			"measurement": "tablespoon",
-			"descriptor": "fresh",
+			"descriptor": "fresh, ginger",
 			"preperation": "minced",
 			"prep-description": ""
 		},
