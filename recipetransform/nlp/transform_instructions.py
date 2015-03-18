@@ -45,13 +45,14 @@ def updateAllInstructions(instructions, old_ingredients, new_ingredients):
 							bestlen = tempcount
 							bestDescList = descList
 					if bestlen == 1:
-						besting = ["",True, stringFromList([ing[2] for ing in ings]), ""]
+						newings = list(set([ing[2] for ing in ings]))
+						besting = ["",True, stringFromList(newings), ""]
 					if besting[1]:
 						temptokens += repUpToIngPhrase(lastmatch, matchpos, tokens, bestDescList, besting[2], besting[3])
 				lastmatch = matchpos
 				matchpos = next(matchitr,None)
 			if temptokens:
-				tokens = temptokens + tokens[lastmatch:]
+				tokens = temptokens + tokens[lastmatch+1:]
 		new_instructions.append(punctFriendlyJoin(tokens))
 	return new_instructions
 
