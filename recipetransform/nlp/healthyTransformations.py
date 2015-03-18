@@ -7,6 +7,7 @@ from bson.son import SON
 import recipetransform.tools.database as tools
 from recipetransform.tools.database import encode, decode
 from recipetransform.tools.dictionary_ops import *
+import transform_instructions as tI
 
 def transformHealthy(parsedIngs, parsedIns, transformType, transformCat):
     transformedIngs = []
@@ -30,8 +31,10 @@ def transform(parsedIngs, cat, sort, parsedIns):
     # Search db for each ingredients in the
     transRec =[]
     newIns = parsedIns
+    newIngs = []
     for ing in parsedIngs:
-        newIng = {}
+        newIng = dict()
+        newIngforIns = dict()
         (replacement, energy, sodium) = getReplacement(ing["name"], cat, sort)
 
         #Split into name and descriptors
@@ -39,18 +42,28 @@ def transform(parsedIngs, cat, sort, parsedIns):
 
         if(cat =="Energy" and energy != '0'):
             newIng["name"] = name + ' ('+str(energy)+' kcal)'
+            newIng["descriptor"] = desc
+            newIngforIns["name"] = name
+            newIngforIns["descriptor"] = desc
         elif (sodium != '0'):
             newIng["name"] = name + ' ('+str(sodium)+' g)'
+            newIng["descriptor"] = desc
+            newIngforIns["name"] = name
+            newIngforIns["descriptor"] = desc
         else:
             newIng["name"] = ing["name"]
-            
-        newIng["descriptor"] = desc
+            newIng["descriptor"] = ing["descriptor"]
+            newIngforIns["name"] = ing["name"]
+            newIngforIns["descriptor"] = ing["descriptor"]
+        
         newIng["quantity"] = ing["quantity"]
         newIng["measurement"] = ing["measurement"]
         
-        newIns = updateInstructionsHealthy(newIns, ing, newIng);
         transRec.append(newIng)
+        newIngs.append(newIngforIns)
 
+    newIns = tI.updateAllInstructions(parsedIns, parsedIngs, newIngs);
+    
     return (transRec, newIns)
 
 def getReplacement(ingredient, cat, sort):
