@@ -3,36 +3,24 @@ from bson.son import SON
 import recipetransform.tools.database as tools
 from recipetransform.tools.database import encode, decode
 from recipetransform.tools.dictionary_ops import *
+from recipetransform.nlp.transform_instructions import updateAllInstructions
 import recipetransform.nlp.healthyTransformations as ht
 
 
 
-def replaceIngredient(ingredients, index, new_ingredient):
-	"""
-	replace parsed ingredient (full ingredient dictionary) at index 
-	with new ingredient (ingredient dictionary with name, descriptor)
-	"""
+def replaceIngredient(ingredient, candidate):
 
-	ingredients[index]["name"] = new_ingredient["name"]
-	ingredients[index]["descriptor"] = new_ingredient["descriptor"]
+	new_ingredient = {}
 
-	return ingredients
+	for key in ingredient:
+		new_ingredient[key] = ingredient[key]
+
+	for key in candidate:
+		new_ingredient[key] = candidate[key]
 
 
-def updateInstruction(parsed_instructions, old_ingredient, new_ingredient):
-	"""
-	update instructions, replacing old_ingredient (full ingredient dictionary)
-	with new_ingredient (ingredient dictionary with name, descriptor)
-	"""
-	new_instructions = []
-	for instruction in parsed_instructions:
-		instruction = re.sub(R'\b'+old_ingredient["name"]+R'\b',
-			new_ingredient["name"], instruction)
-		instruction = re.sub(R'\b'+old_ingredient["descriptor"]+R'\b', 
-			new_ingredient["descriptor"], instruction)
-		new_instructions.append(instruction)
 
-	return new_instructions
+	return new_ingredient
 
 
 def tryExclusionTable(food_group, transform_category):
@@ -224,6 +212,8 @@ def getFoodGroup(ingredient):
 def transformDietCuisine(parsed_ingredients, parsed_instructions, transform_category):
 
 	replacement_counter = {}
+	new_ingredients = [ingredient for ingredient in parsed_ingredients]
+
 	for i, ingredient in enumerate(parsed_ingredients):
 
 		ingredient["descriptor"] = "" if "descriptor" not in ingredient.keys() else ingredient["descriptor"]
@@ -242,11 +232,14 @@ def transformDietCuisine(parsed_ingredients, parsed_instructions, transform_cate
 		replacement_counter = addDict(food_group, replacement_counter, 1)
 
 		if candidate is not None:
-			parsed_instructions = updateInstruction(parsed_instructions, ingredient, candidate)
-			parsed_ingredients = replaceIngredient(parsed_ingredients, i, candidate)
+			new_ingredient = replaceIngredient(ingredient, candidate)
+			new_ingredients[i] = (new_ingredient)
+
+	
+	new_instructions = updateAllInstructions(parsed_instructions, parsed_ingredients, new_ingredients)
 			
 
-	return parsed_ingredients, parsed_instructions
+	return new_ingredients, new_instructions
 
 
 def transform_recipe(parsed_ingredients, parsed_instructions, transform_category, transform_type):

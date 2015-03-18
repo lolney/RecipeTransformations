@@ -158,7 +158,7 @@ def parse_instruction(list_of_str, name_str, foodDict):
 
 	cookingTools = ["ladle", "tongs", "spoon", "spatula", "whisk", "knife", "grater", "peeler", "wok",
 	"garlic press", "lemon press", "shears", "can opener", "corkscrew", "thermometer", "measuring cup",
-	"salad spinners", "colander", "cutting board", "bowl", "saucepan", "(?<!frying|baking)pan", "baking sheet",
+	"salad spinners", "colander", "cutting board", "bowl", "saucepan", "(?<!frying |baking )pan", "baking sheet",
 	"baking dish", "pot", "skillet", "fork", "forks", "oven", "griddle", "microwave", "hot plate",
 	"rice cooker", "baster", "cookie cutter", "pastry brush", "rolling pin", "sieve", "stove", "oven",
 	r"(?<=the )grill", "tin", "tongs", "cookie sheet", "plate", "bag", "foil", "blender", "mixer", "slow cooker",
