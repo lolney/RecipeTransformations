@@ -3,7 +3,7 @@ import recipetransform.tools.database as tools
 import recipetransform.tools.yummly as yum
 from recipetransform.nlp.parse_ingredient import parseIngredient, convert_ingredient
 from recipetransform.nlp.transform_recipe import getFoodGroup
-from recipetransform.tools.dictionary_ops import *
+from recipetransform.tools.dictionary_ops import addDict, setDict, addItemToDict
 from recipetransform.tools.database import encode, decode
 
 

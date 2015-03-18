@@ -2,7 +2,7 @@ import urllib, urllib2, os, json
 
 import recipetransform.tools.database as tools
 from recipetransform.nlp.parsing import parse_raw
-from recipetransform.tools.dictionary_ops import *
+from recipetransform.tools.dictionary_ops import addItemToDict
 
 
 def makeUSDARequst(endpoint, query, auth_key=None):

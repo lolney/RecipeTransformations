@@ -2,7 +2,7 @@ import pymongo, re, nltk, operator
 from bson.son import SON
 import recipetransform.tools.database as tools
 from recipetransform.tools.database import encode, decode
-from recipetransform.tools.dictionary_ops import *
+from recipetransform.tools.dictionary_ops import addDict
 from recipetransform.nlp.transform_instructions import updateAllInstructions
 import recipetransform.nlp.healthyTransformations as ht
 
