@@ -20,10 +20,13 @@ def convert_ingredient(name,parse_list):
 		"prep_descriptor": parse_list[3]
 	}
 
+
 def parseQuantity(string):
 	string = re.sub(r"\(.*\)","",string)
 	tokens = re.split(r"\s+(?=[a-zA-Z])", string)
 	quantity = tokens[0]
+	measure = "discrete" if len(tokens) == 1 else " ".join(tokens[1:])
+
 	if re.search(r"\d+/\d+", quantity) is not None:
 		ints = re.split(r"[\s+/]", quantity)
 		if len(ints) == 2:
@@ -32,9 +35,30 @@ def parseQuantity(string):
 			quantity = float(ints[0]) + (float(ints[1]) / float(ints[2]))
 	elif re.search("[Oo]ne", quantity) is not None:
 		quantity = 1
-	return [float(quantity)," ".join(tokens[1:])]
+
+	return [float(quantity),measure]
+
 
 def parseIngredient(string):
+
+	# split off 'with' phrases
+	split_phrase = re.split(r", with(?=[\s\w]+$)", string)
+	if len(split_phrase) > 1:
+		end_phrase = ["with" + split_phrase[-1]]
+	else:
+		end_phrase = []
+
+	# add with phrase to descriptor
+	result = doParseIngredient(split_phrase[0])
+	result[1] = ", ".join([result[1]]+end_phrase)
+
+	# strip spaces before parens
+	result = [re.sub(r" ,",",",item) if type(item) is not type([]) else [] for item in result]
+	print "result", result
+	return result
+
+
+def doParseIngredient(string):
 	string = string.replace(', or more to taste','')
 	string = string.replace(' to taste','')
 	string = string.replace(', or more as needed','')
@@ -62,6 +86,7 @@ def parseIngredient(string):
 	ing_split = splitIngPhrase(pos_str[:VBNnext])
 	prep_split = splitPrepPhraseList(pos_str[VBNnext:],False)
 	return [ing_split[0],ing_split[1],prep_split[0],prep_split[1]]
+	
 
 def splitIngPhrase(pos_str):
 	parendesc = ''

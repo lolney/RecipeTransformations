@@ -19,7 +19,6 @@ def replaceIngredient(ingredient, candidate):
 		new_ingredient[key] = candidate[key]
 
 
-
 	return new_ingredient
 
 
@@ -71,7 +70,7 @@ def findIngredientAboveScore(score, food_groups, transform_category, addl_query=
 	pipe1 = [
 	{"$match": {"food_group": {"$in": food_groups}}},
 	{"$unwind": "$ingredients"},
-	{"$match": {"ingredients." + transform_category: {"$gt":score}}}]
+	{"$match": {"ingredients." + transform_category: {"$gt":.05+2*score}}}]
 
 	pipe2 =	[{"$sort": SON({"ingredients." + transform_category: -1})}]
 
