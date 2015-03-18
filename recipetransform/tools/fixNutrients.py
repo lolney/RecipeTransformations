@@ -10,10 +10,10 @@ def fixNutrients(file):
                 if(ing[nut] != "--"):
                     newVal = float(ing[nut])
                 else:
-                    newVal =0
+                    newVal = "--"
                 ing[nut]=newVal
 
-    with open("nutrients2.json", "w+") as file:
+    with open("nutrients3.json", "w+") as file:
                 json.dump(items, file)
 
 		
